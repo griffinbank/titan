@@ -17,7 +17,7 @@
 (defn -initialize-db-connection-fixture
   "Initializes the DB connection for Korma."
   [test-ns]
-  (db/set-korma-db)
+  (db/set-korma-db!)
   (test-ns))
 
 (defn use-db-fixtures
