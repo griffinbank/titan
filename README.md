@@ -10,9 +10,7 @@ If you have a Korma entity defined at `db/user`, a model for that user might
 look like:
 
 ```clojure
-(defmodel db/user
-  {(s/optional-key :id) s/Int
-   (s/optional-key :email) s/Str})
+(defmodel db/user)
 ```
 
 ## Controllers
