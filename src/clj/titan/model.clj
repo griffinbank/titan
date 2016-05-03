@@ -35,7 +35,7 @@
     (korma/delete entity (korma/where params))))
 
 (defn intern-fns
-  [entity schema]
+  [entity]
   (let [n (:name entity)]
     (intern *ns*
             (with-meta
@@ -49,13 +49,12 @@
     (intern *ns* (symbol (str "delete-" n "!")) (delete! entity))))
 
 (defmacro defmodel
-  "Define basic database methods for the target entity. Also does
-   schema coercion.
+  "Define basic database methods for the target entity.
 
     * create-X!
     * fetch-X
     * fetch-one-X
     * update-X!
     * delete-X!"
-  [entity schema]
-  `(intern-fns ~entity ~schema))
+  [entity]
+  `(intern-fns ~entity))
