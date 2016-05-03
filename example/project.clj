@@ -9,4 +9,4 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [compojure "1.5.0"]
                  [ring/ring-json "0.4.0"]
-                 [titan "0.1.0-SNAPSHOT"]])
+                 [venantius/titan "0.1.0-SNAPSHOT"]])

@@ -19,5 +19,4 @@
 ;; - `create-app-user!`
 ;; - `update-app-user!`
 ;; - `delete-app-user!`
-(defmodel app-user
-  user)
+(defmodel app-user)
