@@ -11,7 +11,7 @@
                   :exclusions [[ch.qos.logback/logback-classic]
                                [ch.qos.logback/logback-core]]]
                  [korma "0.4.2"]
-                 [ragtime "0.5.3"]
+                 [ursacorp/ragtime "0.6.0"]
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.2.0"]
                  [ring/ring-json "0.4.0"]
