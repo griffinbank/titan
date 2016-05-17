@@ -1,28 +1,32 @@
 (ns titan.test.fixtures
   "Clever ways of working with databases in tests."
-  (:require [clojure.test :refer [use-fixtures]]
+  (:require [clojure.java.jdbc :as jdbc]
+            [clojure.test :refer [use-fixtures]]
             [korma.db :refer [rollback transaction]]
+            [ragtime.jdbc :as rjdbc]
+            [ragtime.repl :as repl]
             [titan.db :as db]
             [titan.db.migrations :as migrations]))
 
-(defn -db-fixtures
-  "Migrates the database, and inserts fixture data into the database before
-   each test."
+(defn- transactional-db-fixtures
+  "Run the test inside of a transaction."
   [test-fn]
   (transaction
-   (migrations/migrate)
    (test-fn)
    (rollback)))
 
-(defn -initialize-db-connection-fixture
-  "Initializes the DB connection for Korma."
+(defn- setup-db
+  "Initializes the DB connection pool and runs migrations. Tears down the
+  migrations after running the test namespace."
   [test-ns]
   (db/set-korma-db!)
-  (test-ns))
+  (migrations/migrate)
+  (test-ns)
+  (migrations/rollback-all))
 
 (defn use-db-fixtures
   "Use db fixtures for all tests in this namespace. Call at the top of your
   test ns."
   []
-  (use-fixtures :once -initialize-db-connection-fixture)
-  (use-fixtures :each -db-fixtures))
+  (use-fixtures :once setup-db)
+  (use-fixtures :each transactional-db-fixtures))

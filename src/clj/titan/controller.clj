@@ -95,3 +95,24 @@
                                     (assoc metadata :doc docstring?)
                                     metadata)))
        (controller ~arglist ~body ~metadata))))
+
+(defmacro defcontroller2
+  "
+  :parser
+  coerce :params into this. all params must be specified.
+
+  :policy
+  authorization mechanism
+
+  :monitor
+  after-action review? logging? unclear.
+  "
+  []
+  )
+
+(defcontroller create-user
+  []
+  {:handler 'handler
+   :policy 'policy
+   :presenter 'presenter
+   :parser 'parser})

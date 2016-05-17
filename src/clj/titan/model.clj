@@ -34,27 +34,64 @@
   (fn [params]
     (korma/delete entity (korma/where params))))
 
-(defn intern-fns
-  [entity]
-  (let [n (:name entity)]
-    (intern *ns*
-            (with-meta
-              (symbol (str "create-" n "!"))
-              {:doc (format "Insert a new %s to the database." n)
-               :arglists '([params])})
-            (create! entity))
-    (intern *ns* (symbol (str "fetch-" n)) (fetch entity))
-    (intern *ns* (symbol (str "fetch-one-" n)) (fetch-one entity))
-    (intern *ns* (symbol (str "update-" n "!")) (update! entity))
-    (intern *ns* (symbol (str "delete-" n "!")) (delete! entity))))
+(defn- intern-*ns*
+  [name-str obj metadata]
+  (intern *ns* (with-meta (symbol name-str) metadata) obj))
+
+(defn- intern-delete!-fn
+  [{:keys [name] :as entity}]
+  (intern-*ns*
+   (str "delete-" name "!")
+   (delete! entity)
+   {:doc (format "Delete all %s records from the database matching params." name)
+    :arglists '([params])}))
+
+(defn- intern-update!-fn
+  [{:keys [name] :as entity}]
+  (intern-*ns*
+   (str "update-" name "!")
+   (update! entity)
+   {:doc (format "Update one %s record from the database with the provided id to the given params." name)
+    :arglists '([id params])}))
+
+(defn- intern-fetch-one-fn
+  [{:keys [name] :as entity}]
+  (intern-*ns*
+   (str "fetch-one-" name)
+   (fetch-one entity)
+   {:doc (format "Fetch one %s record from the database matching the given params." name)
+    :arglists '([params])}))
+
+(defn- intern-fetch-fn
+  [{:keys [name] :as entity}]
+  (intern-*ns*
+   (str "fetch-" name)
+   (fetch entity)
+   {:doc (format "Fetch all %s records from the database matching the given params." name)
+    :arglists '([params])}))
+
+(defn- intern-create!-fn
+  [{:keys [name] :as entity}]
+  (intern-*ns*
+   (str "create-" name "!")
+   (create! entity)
+   {:doc (format "Insert a new %s record into the database." name)
+    :arglists '([params])}))
+
+(defn- intern-fns
+  [{:keys [name] :as entity}]
+  (intern-create!-fn entity)
+  (intern-fetch-fn entity)
+  (intern-fetch-one-fn entity)
+  (intern-update!-fn entity)
+  (intern-delete!-fn entity))
 
 (defmacro defmodel
-  "Define basic database methods for the target entity.
-
+  "Define basic database methods for the target entity:
     * create-X!
     * fetch-X
     * fetch-one-X
     * update-X!
     * delete-X!"
   [entity]
-  `(intern-fns ~entity))
+  `(#'intern-fns ~entity))

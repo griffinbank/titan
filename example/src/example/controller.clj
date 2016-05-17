@@ -1,6 +1,7 @@
 (ns example.controller
   (:require [example.model :as model]
-            [titan.controller :refer [defcontroller]]))
+            [titan.controller :refer [defcontroller]]
+            [debugger.core]))
 
 ;; Fetch all users. Note that although we're using the `defcontroller` macro,
 ;; we're not actually doing any type casting.
