@@ -40,8 +40,6 @@
 
   :profiles {:dev
              {:dependencies [[bond "0.2.5"]]
-              :env {:database-url "postgres://localhost:5432/titan"}
-              }
-
-             }
+              :env {:database-url "postgres://localhost:5432/titan"}}
+             :test {:env {:database-url "postgres://localhost:5432/titan_test"}}}
 )

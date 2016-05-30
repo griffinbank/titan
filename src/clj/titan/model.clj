@@ -2,6 +2,15 @@
   (:require [clojure.tools.logging :as log]
             [korma.core :as korma]))
 
+(defprotocol TitanQuery
+  (create! [this]))
+
+(defrecord Query [this query]
+  clojure.lang.IDeref
+  TitanQuery
+  (deref [this] (korma.core/exec query))
+  (create! [this] 5))
+
 (defn- create!
   [entity]
   (fn [params]
