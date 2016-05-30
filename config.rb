@@ -1,5 +1,6 @@
 # source directory
 set :source, 'doc/source'
+set :build_dir, 'doc/build'
 
 # Markdown
 set :markdown_engine, :redcarpet
@@ -12,11 +13,6 @@ set :markdown,
     with_toc_data: true,
     no_intra_emphasis: true
 
-# Assets
-set :css_dir, 'stylesheets'
-set :js_dir, 'javascripts'
-set :images_dir, 'images'
-set :fonts_dir, 'fonts'
 
 # Activate the syntax highlighter
 activate :syntax
@@ -32,6 +28,7 @@ activate :relative_assets
 set :relative_links, true
 
 # Build Configuration
+activate :sprockets
 configure :build do
   # If you're having trouble with Middleman hanging, commenting
   # out the following two lines has been known to help
