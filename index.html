@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:700|Open+Sans:300' rel='stylesheet' type='text/css'>
+    <title>API Documentation</title>
+
+    <style>
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight, .highlight .w {
+  color: #303030;
+}
+.highlight .err {
+  color: #151515;
+  background-color: #ac4142;
+}
+.highlight .c, .highlight .cd, .highlight .cm, .highlight .c1, .highlight .cs {
+  color: #505050;
+}
+.highlight .cp {
+  color: #f4bf75;
+}
+.highlight .nt {
+  color: #f4bf75;
+}
+.highlight .o, .highlight .ow {
+  color: #d0d0d0;
+}
+.highlight .p, .highlight .pi {
+  color: #d0d0d0;
+}
+.highlight .gi {
+  color: #90a959;
+}
+.highlight .gd {
+  color: #ac4142;
+}
+.highlight .gh {
+  color: #6a9fb5;
+  background-color: #151515;
+  font-weight: bold;
+}
+.highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv {
+  color: #aa759f;
+}
+.highlight .kc {
+  color: #d28445;
+}
+.highlight .kt {
+  color: #d28445;
+}
+.highlight .kd {
+  color: #d28445;
+}
+.highlight .s, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .s2, .highlight .sh, .highlight .sx, .highlight .s1 {
+  color: #90a959;
+}
+.highlight .sr {
+  color: #75b5aa;
+}
+.highlight .si {
+  color: #8f5536;
+}
+.highlight .se {
+  color: #8f5536;
+}
+.highlight .nn {
+  color: #f4bf75;
+}
+.highlight .nc {
+  color: #f4bf75;
+}
+.highlight .no {
+  color: #f4bf75;
+}
+.highlight .na {
+  color: #6a9fb5;
+}
+.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .il, .highlight .mo, .highlight .mb, .highlight .mx {
+  color: #90a959;
+}
+.highlight .ss {
+  color: #90a959;
+}
+    </style>
+    <link href="stylesheets/screen.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all_nosearch.js"></script>
+  </head>
+
+  <body class="index" data-languages="[]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <!-- 
+        <img src="images/logo.png" />
+      -->
+        <div class="lang-selector">
+        </div>
+      <div id="toc">
+      </div>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="titan">Titan</h1>
+
+<p>Titan is a small, simple framework for building Clojure web applications.
+It focuses on conventions around application structure, and provides tooling
+to aid applications following those conventions.</p>
+
+<ul>
+<li>Application Structure</li>
+<li>Database Models</li>
+<li>Migrations</li>
+<li>Controllers</li>
+</ul>
+
+<h2 id="getting-started">Getting Started</h2>
+
+<h4 id="creating-a-new-titan-app">Creating a New Titan App</h4>
+
+<p>To create a new application using the Titan Leiningen template, just run <code class="prettyprint">lein new titan $your_app_name</code>.</p>
+
+<h4 id="adding-titan-to-an-existing-app">Adding Titan to an Existing App</h4>
+<pre class="highlight clojure"><code><span class="p">{</span><span class="no">:dependencies</span><span class="w"> </span><span class="p">[[</span><span class="n">titan</span><span class="w"> </span><span class="s">"0.1.0"</span><span class="p">]</span><span class="w">
+                </span><span class="p">[</span><span class="n">org.postgresql/postgresql</span><span class="w"> </span><span class="s">"9.4-1206-jdbc42"</span><span class="p">]</span><span class="w">
+                </span><span class="n">...</span><span class="w">
+                </span><span class="p">]}</span><span class="w">
+</span></code></pre>
+
+<p>First, add Titan to your list of dependencies.</p>
+
+<p>If you&rsquo;re currently using a SQL database for your application, you probably already
+have the appropriate JDBC driver in your dependencies. If not, you&rsquo;ll need to
+add one. The example code on the right is a fairly recent version of the
+PostgreSQL JDBC driver.</p>
+
+<h2 id="application-structure">Application Structure</h2>
+
+<p>Titan </p>
+
+<h1 id="database">Database</h1>
+
+<p>Titan assumes the use of a SQL-driven relational database, and provides
+drop-in solutions for simple database query patterns. Titan also provides a
+straightforward, pure SQL solution for migrations.</p>
+
+<p>Under the hood, Titan is powered by <a href="https://github.com/korma/korma">Korma</a> and
+<a href="https://github.com/weavejester/ragtime">Ragtime</a>.</p>
+
+<h2 id="models">Models</h2>
+
+<p>We recommend defining all of your Korma entities in a single namespace
+and then storing per-model logic in individual namespaces. By convention,
+entities should be declared in <code class="prettyprint">$yourapp.model</code> and individual models should be
+declared in <code class="prettyprint">$yourapp.model.$model_name</code>.</p>
+
+<h3 id="defmodel">Defmodel</h3>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">korma/defentity</span><span class="w"> </span><span class="n">app-user</span><span class="w">
+  </span><span class="p">(</span><span class="nf">korma/table</span><span class="w"> </span><span class="no">:app_user</span><span class="p">))</span><span class="w">
+
+</span><span class="p">(</span><span class="nf">defmodel</span><span class="w"> </span><span class="n">app-user</span><span class="p">)</span><span class="w">
+</span></code></pre>
+
+<p>Titan has a single model-related macro, <code class="prettyprint">defmodel</code>. <code class="prettyprint">defmodel</code> takes a single argument - a Korma entity, and declares the following functions in the namespaces in which it&rsquo;s used:</p>
+
+<h4 id="fetch">Fetch</h4>
+<pre class="highlight clojure"><code><span class="c1">;; SELECT * FROM app_user;
+</span><span class="p">(</span><span class="nf">fetch-app-user</span><span class="p">)</span><span class="w">
+</span><span class="c1">;; =&gt; ({:id 1 :name "Venantius"}, {:id 2 :name "Test User"})
+</span><span class="w">
+</span><span class="c1">;; SELECT * FROM app_user WHERE id = 2;
+</span><span class="p">(</span><span class="nf">fetch-app-user</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="p">})</span><span class="w">
+</span><span class="c1">;; =&gt; {:id 2 :name "Test User"}
+</span></code></pre>
+
+<p>Fetch records for a model with <code class="prettyprint">fetch</code>.</p>
+
+<p>You can fetch all records where a map of parameters matches by passing that in as well.</p>
+
+<h4 id="fetch-one">Fetch-one</h4>
+<pre class="highlight clojure"><code><span class="c1">;; SELECT * FROM app_user WHERE id = 2 LIMIT 1;
+</span><span class="p">(</span><span class="nf">fetch-one-app-user</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="p">})</span><span class="w">
+</span><span class="c1">;; =&gt; {:id 2 :name "Test User"}
+</span></code></pre>
+
+<p>If you just want to fetch a single record from the database, use <code class="prettyprint">fetch-one</code>.</p>
+
+<aside class="notice">
+Note that you&rsquo;ll get a single map back from <code>fetch-one</code>, not a seq.
+</aside>
+
+<h4 id="create">Create</h4>
+<pre class="highlight clojure"><code><span class="c1">;; INSERT INTO app_user (name) VALUES ('Bear');
+</span><span class="p">(</span><span class="nf">create-app-user!</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Bear"</span><span class="p">})</span><span class="w">
+</span><span class="c1">;; =&gt; {:id 3 :name "Bear"}
+</span></code></pre>
+
+<p>Insert a new record into the database with <code class="prettyprint">create</code>. Returns the inserted
+record.</p>
+
+<h4 id="update">Update</h4>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">update-app-user!</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Ursa Americanus Kermodei"</span><span class="p">})</span><span class="w">
+</span><span class="c1">;; =&gt; {:id 3 :name "Ursa Americanus Kermodei"}
+</span></code></pre>
+
+<p>Update the record with a given id to have the provided new fields. Returns the
+updated record.</p>
+
+<h4 id="delete">Delete</h4>
+<pre class="highlight clojure"><code><span class="c1">;; DELETE FROM app_user WHERE id = 3;
+</span><span class="p">(</span><span class="nf">delete-app-user!</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="p">})</span><span class="w">
+</span><span class="c1">;; =&gt; 1 ;; returns the number of records deleted
+</span></code></pre>
+
+<p>Deletes all records matching the provided parameters. Returns the number of records
+deleted.</p>
+
+<h2 id="migrations">Migrations</h2>
+
+<p>Database migrations should be individual SQL files stored in
+<code class="prettyprint">resources/migrations</code>.</p>
+
+<p>As an example, your application&rsquo;s first migration might be stored in
+<code class="prettyprint">001-table_creation.up.sql</code>. The corresponding rollback would be stored in
+<code class="prettyprint">001-table_creation.down.sql</code>.</p>
+
+<h1 id="controllers">Controllers</h1>
+
+<p>Controllers are defined with <code class="prettyprint">titan.controller/defcontroller</code>.</p>
+
+<p>Let&rsquo;s say you have a schema named <code class="prettyprint">repo</code>:</p>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="k">def</span><span class="w"> </span><span class="n">repo</span><span class="w">
+  </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="n">s/Int</span><span class="w">
+   </span><span class="no">:full_name</span><span class="w"> </span><span class="n">s/Str</span><span class="w">
+   </span><span class="no">:name</span><span class="w"> </span><span class="n">s/Str</span><span class="w">
+   </span><span class="no">:owner</span><span class="w"> </span><span class="n">owner</span><span class="w">
+   </span><span class="no">:private</span><span class="w"> </span><span class="n">s/Bool</span><span class="w">
+   </span><span class="no">:fork</span><span class="w"> </span><span class="n">s/Bool</span><span class="p">})</span><span class="w">
+</span></code></pre>
+
+<p>Now you can define a controller in which <code class="prettyprint">:params</code> must be coerced into the <code class="prettyprint">repo</code>
+schema as follows:</p>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">defcontroller</span><span class="w"> </span><span class="n">create!</span><span class="w">
+  </span><span class="s">"Follow a new repository."</span><span class="w">
+  </span><span class="p">{</span><span class="no">:params</span><span class="w"> </span><span class="n">repo</span><span class="p">}</span><span class="w">
+  </span><span class="p">[{</span><span class="no">:keys</span><span class="w"> </span><span class="p">[</span><span class="n">params</span><span class="w"> </span><span class="n">user</span><span class="p">]}]</span><span class="w">
+  </span><span class="p">(</span><span class="nf">behavior</span><span class="w"> </span><span class="n">...</span><span class="p">))</span><span class="w">
+</span></code></pre>
+
+<h2 id="usage">Usage</h2>
+
+<p>FIXME</p>
+
+<h2 id="license">License</h2>
+
+<p>Copyright © 2016 FIXME</p>
+
+<p>Distributed under the Eclipse Public License either version 1.0 or (at
+your option) any later version.</p>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
