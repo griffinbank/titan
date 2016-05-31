@@ -4,6 +4,6 @@ machine:
 
 test:
   pre:
-    - echo "skipping middleman"
+    - createdb titan_test
   override:
     - lein test
