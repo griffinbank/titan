@@ -1,0 +1,3 @@
+DROP TABLE post;
+DROP TABLE blog;
+DROP TABLE author;
