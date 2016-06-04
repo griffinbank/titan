@@ -1,10 +1,11 @@
-(defproject venantius/titan "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject venantius/titan "0.0.1-SNAPSHOT"
+  :description "An extensible web application framework for Clojure."
+  :url "https://github.com/venantius/titan"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/tools.logging "0.3.1"]
+                 [org.clojure/tools.macro "0.1.2"]
                  [org.clojure/tools.nrepl "0.2.12"]
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
                  [org.immutant/web "2.1.4"
@@ -19,9 +20,6 @@
                  [prismatic/schema "1.1.0"]
                  [environ "1.0.2"]
                  [clj-time "0.11.0"]
-
-                 ;; May need add'l JDBC drivers in the future
-                 [org.postgresql/postgresql "9.4-1206-jdbc42"]
 
                  ;; This may not stick around. I was just tinkering with having
                  ;; a richer REPL as part of Titan rather than in my
@@ -39,7 +37,8 @@
   :plugins [[lein-environ "1.0.2"]]
 
   :profiles {:dev
-             {:dependencies [[bond "0.2.5"]]
+             {:dependencies [[bond "0.2.5"]
+                             [org.postgresql/postgresql "9.4-1206-jdbc42"]]
               :env {:database-url "postgres://localhost:5432/titan"}}
              :test {:env {:database-url "postgres://localhost:5432/titan_test"}}}
 )

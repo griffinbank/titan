@@ -7,43 +7,48 @@
 ;; Set up connection to db, etc.
 (use-db-fixtures)
 
-;; Define Korma entity
-(korma/defentity app-user
-  (korma/table :app_user))
+;; Define Korma entities
+(declare author blog post)
 
-(defmodel app-user)
+(korma/defentity author)
+(korma/defentity blog)
+(korma/defentity post
+  (korma/belongs-to author)
+  (korma/belongs-to blog))
+
+(defmodel author)
 
 (deftest model-stuff-works
-  (is (= (fetch-one-app-user)
+  (is (= (fetch-one-author)
          {:id 1
           :name "Venantius"})))
 
 (deftest fetch-x-works
-  (is (= (fetch-app-user)
+  (is (= (fetch-author)
          '({:id 1
             :name "Venantius"}
            {:id 2
             :name "Test User"}))))
 
 (deftest create-x-works
-  (let [user (create-app-user! {:name "New user"})]
+  (let [user (create-author! {:name "New user"})]
     (is (= user
            {:id 3 :name "New user"}))
-    (is (= (fetch-one-app-user {:name "New user"})
+    (is (= (fetch-one-author {:name "New user"})
            {:id 3 :name "New user"}))))
 
 ;; Verify that the above db insertion transaction was rolled back and not
 ;; committed.
 (deftest tests-are-wrapped-in-transaction-blocks
-  (is (= (fetch-one-app-user {:name "New user"}) nil)))
+  (is (= (fetch-one-author {:name "New user"}) nil)))
 
 (deftest update-x-works
-  (let [user (update-app-user! 1 {:name "Bear"})]
+  (let [user (update-author! 1 {:name "Bear"})]
     (is (= user
            {:id 1
             :name "Bear"}))))
 
 (deftest delete-x-works
-  (delete-app-user! {:name "Venantius"})
-  (is (= (count (fetch-app-user))
+  (delete-author! {:name "Venantius"})
+  (is (= (count (fetch-author))
          1)))
