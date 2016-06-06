@@ -5,7 +5,7 @@
             [titan.model :refer [defmodel]]))
 
 ;; Set up connection to db, etc.
-(use-db-fixtures)
+(use-db-fixtures {:no-transactions true})
 
 ;; Define Korma entities
 (declare author blog post)

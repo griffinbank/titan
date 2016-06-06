@@ -36,9 +36,13 @@
   ;; dependencies
   :plugins [[lein-environ "1.0.2"]]
 
+  :aliases {"migrate"  ["run" "-m" "titan.db.migrations/migrate"]
+            "rollback" ["run" "-m" "titan.db.migrations/rollback"]}
   :profiles {:dev
              {:dependencies [[bond "0.2.5"]
                              [org.postgresql/postgresql "9.4-1206-jdbc42"]]
               :env {:database-url "postgres://localhost:5432/titan"}}
-             :test {:env {:database-url "postgres://localhost:5432/titan_test"}}}
+             :test 
+             {:dependencies [[org.postgresql/postgresql "9.4-1206-jdbc42"]]
+              :env {:database-url "postgres://localhost:5432/titan_test"}}}
 )
