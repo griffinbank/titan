@@ -426,6 +426,7 @@ html, body {
   h1, h2, h3 {
     padding-top: $main-padding * 2;
     margin-top: 0;
+    top: 40px;
     // border-top: 1px solid #ddd;
     &:before {
       display: block;

@@ -27,8 +27,6 @@ demonstration application can be found [here](https://github.com/venantius/titan
 It's easy to get started with Titan, whether you're starting
 from scratch or modifying an existing application.
 
-
-
 ### Beginning From Scratch
 
 <aside class="warning">This feature is not yet complete.</aside>
@@ -55,10 +53,9 @@ First, add Titan to your list of dependencies.
                ; ...
 ```
 
-If you're currently using a SQL database for your application, you probably already
-have the appropriate JDBC driver in your dependencies. If not, you'll need to
-add one. The example code includes a fairly recent version of the
-PostgreSQL JDBC driver.
+If you're currently using a SQL database for your application, make sure to
+include the appropriate JDBC driver in your dependencies. The example code
+includes a fairly recent version of the PostgreSQL JDBC driver.
 
 ```clojure
                [compojure "1.5.0"]
@@ -85,7 +82,6 @@ command-line migrations more convenient.
 
 ```clojure
 (ns example.core
-  "Our sample application's main namespace."
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
             [titan.app :refer [defapp]]
@@ -98,19 +94,12 @@ command-line migrations more convenient.
 (defapp app-routes)
 ```
 
-Although Titan doesn't have any preferences as to which routing engine
-you use, it does care where you store your main application request handler. For
-many simple web applications, this main handler will either be the routing table
-itself, or a seperate var in which the routing table has been wrapped with a
-middleware layer. In the included example code, the `app-routes` var
-is the relevant primary handler.
-
 Titan expects you to wrap your application's main handler in the `defapp` macro,
-located in the `titan.app` namespace. The `defapp` macro is used to store 
-your primary application handler in the `titan.app/app` atom (allowing other
-parts of Titan to know where to find it without having to know anything about
-your application structure). Any re-loading of the namespace including the
-`defapp` macro will reset the `app` atom's contents.
+located in the `titan.app` namespace. The `defapp` macro is used to store
+your primary application handler in the `titan.app/app` atom, which allows
+Titan to know where to find it without having to know the details of your
+your application structure. Re-loading the namespace including the `defapp`
+macro will reset the `app` atom's contents.
 
 #### Starting the Titan server
 
@@ -129,9 +118,10 @@ Under the hood, Titan is powered by [Korma](https://github.com/korma/korma) and
 
 ## Migrations
 
-Database migrations should be written in pure SQL and stored in individual files
-in your project's `resources/migrations` directory. Each migration should have
-one file for the up migration and a corresponding file for the down migration.
+Database migrations for a Titan application should be written in pure SQL and
+stored in individual files in your project's `resources/migrations` directory.
+Each migration should have one file for the up migration and a corresponding
+file for the down migration.
 
 Up migration files should use the `.up.sql` extension, while down migration
 files should use `down.sql.` Migration filenames should be unique and ordered -
@@ -165,7 +155,7 @@ CREATE TABLE post (
 );
 ```
 
-Let's consider an example blog application. Our initial migration, creating the
+Let's consider our example blog application. The initial migration, creating the
 relevant tables, might look like the code on the right. In this migration, we're
 creating three tables: one for authors, one for blogs, and one for blog posts.
 
@@ -182,10 +172,36 @@ DROP TABLE author;;
 
 A corresponding down migration might look like the attached code sample.
 
+### Running Migrations
+
+<aside class="warning">
+This is a feature with an actively changing API.
+</aside>
+
+#### Running Migrations at the Command Line
+
+To apply migrations at the command line, run `lein migrate`. If
+you want to roll back all prior migrations, use `lein rollback`.
+
+Titan AOT-compiles migration classes, enabling you to run migrations using an
+Uberjar as part of your deployment process as well. Running migrations this way
+can be done by executing `java -cp path/to/app.jar titan.commands.db.migrate`.
+
+#### Running Migrations at the REPL
+
+```clojure
+(require 'titan.db.migrations)
+(titan.db.migrations/migrate)
+```
+
+To apply migrations from the REPL, first require the Titan database migrations
+namespace, then run the `migrate` command. You can also roll migrations back
+with `rollback`.
+
 ## Models
 
 ```clojure
-(ns yourapp.model
+(ns example.model
   (:require [korma.core :as k]))
 
 (k/defentity app-user
@@ -210,7 +226,7 @@ entities should be declared in `$yourapp.model` and individual models should be
 declared in `$yourapp.model.$model_name`.
 
 ```clojure
-(ns yourapp.model.app-user
+(ns example.model.app-user
   (:require [titan.model :as m]))
 ```
 

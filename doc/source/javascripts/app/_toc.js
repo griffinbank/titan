@@ -16,13 +16,13 @@
       extendPage: false,
       theme: 'none',
       showAndHide: false,
-      smoothScroll: true,
-      smoothScrollSpeed: "medium",
+      smoothScroll: false,
+      smoothScrollSpeed: "slow",
       showEffectSpeed: 0,
       hideEffectSpeed: 180,
       ignoreSelector: '.toc-ignore',
       highlightOffset: 60,
-      scrollTo: -1,
+      scrollTo: -41,
       scrollHistory: true,
       hashGenerator: function (text, element) {
         return element.prop('id');
