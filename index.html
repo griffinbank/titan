@@ -163,10 +163,9 @@ obvious reasons involves a few more steps than starting from a clean slate.</p>
                </span><span class="c1">; ...
 </span></code></pre>
 
-<p>If you&rsquo;re currently using a SQL database for your application, you probably already
-have the appropriate JDBC driver in your dependencies. If not, you&rsquo;ll need to
-add one. The example code includes a fairly recent version of the
-PostgreSQL JDBC driver.</p>
+<p>If you&rsquo;re currently using a SQL database for your application, make sure to
+include the appropriate JDBC driver in your dependencies. The example code
+includes a fairly recent version of the PostgreSQL JDBC driver.</p>
 <pre class="highlight clojure"><code><span class="w">               </span><span class="p">[</span><span class="n">compojure</span><span class="w"> </span><span class="s">"1.5.0"</span><span class="p">]</span><span class="w">
                </span><span class="c1">;; etc...
 </span><span class="w">               </span><span class="p">]</span><span class="w">
@@ -187,7 +186,6 @@ command-line migrations more convenient.</p>
 
 <h4 id="configuring-your-application-code">Configuring Your Application Code</h4>
 <pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">example.core</span><span class="w">
-  </span><span class="s">"Our sample application's main namespace."</span><span class="w">
   </span><span class="p">(</span><span class="no">:require</span><span class="w"> </span><span class="p">[</span><span class="n">compojure.core</span><span class="w"> </span><span class="no">:refer</span><span class="w"> </span><span class="no">:all</span><span class="p">]</span><span class="w">
             </span><span class="p">[</span><span class="n">compojure.route</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">route</span><span class="p">]</span><span class="w">
             </span><span class="p">[</span><span class="n">titan.app</span><span class="w"> </span><span class="no">:refer</span><span class="w"> </span><span class="p">[</span><span class="n">defapp</span><span class="p">]]</span><span class="w">
@@ -200,19 +198,12 @@ command-line migrations more convenient.</p>
 </span><span class="p">(</span><span class="nf">defapp</span><span class="w"> </span><span class="n">app-routes</span><span class="p">)</span><span class="w">
 </span></code></pre>
 
-<p>Although Titan doesn&rsquo;t have any preferences as to which routing engine
-you use, it does care where you store your main application request handler. For
-many simple web applications, this main handler will either be the routing table
-itself, or a seperate var in which the routing table has been wrapped with a
-middleware layer. In the included example code, the <code class="prettyprint">app-routes</code> var
-is the relevant primary handler.</p>
-
 <p>Titan expects you to wrap your application&rsquo;s main handler in the <code class="prettyprint">defapp</code> macro,
-located in the <code class="prettyprint">titan.app</code> namespace. The <code class="prettyprint">defapp</code> macro is used to store 
-your primary application handler in the <code class="prettyprint">titan.app/app</code> atom (allowing other
-parts of Titan to know where to find it without having to know anything about
-your application structure). Any re-loading of the namespace including the
-<code class="prettyprint">defapp</code> macro will reset the <code class="prettyprint">app</code> atom&rsquo;s contents.</p>
+located in the <code class="prettyprint">titan.app</code> namespace. The <code class="prettyprint">defapp</code> macro is used to store
+your primary application handler in the <code class="prettyprint">titan.app/app</code> atom, which allows
+Titan to know where to find it without having to know the details of your
+your application structure. Re-loading the namespace including the <code class="prettyprint">defapp</code>
+macro will reset the <code class="prettyprint">app</code> atom&rsquo;s contents.</p>
 
 <h4 id="starting-the-titan-server">Starting the Titan server</h4>
 
@@ -231,9 +222,10 @@ straightforward, pure SQL solution for migrations.</p>
 
 <h2 id="migrations">Migrations</h2>
 
-<p>Database migrations should be written in pure SQL and stored in individual files
-in your project&rsquo;s <code class="prettyprint">resources/migrations</code> directory. Each migration should have
-one file for the up migration and a corresponding file for the down migration.</p>
+<p>Database migrations for a Titan application should be written in pure SQL and
+stored in individual files in your project&rsquo;s <code class="prettyprint">resources/migrations</code> directory.
+Each migration should have one file for the up migration and a corresponding
+file for the down migration.</p>
 
 <p>Up migration files should use the <code class="prettyprint">.up.sql</code> extension, while down migration
 files should use <code class="prettyprint">down.sql.</code> Migration filenames should be unique and ordered -
@@ -265,7 +257,7 @@ On OS X, you can get the current time with <code>date -u +"%Y%m%d%H%M%S"</code>
 <span class="p">);</span>
 </code></pre>
 
-<p>Let&rsquo;s consider an example blog application. Our initial migration, creating the
+<p>Let&rsquo;s consider our example blog application. The initial migration, creating the
 relevant tables, might look like the code on the right. In this migration, we&rsquo;re
 creating three tables: one for authors, one for blogs, and one for blog posts.</p>
 
@@ -280,8 +272,32 @@ creating three tables: one for authors, one for blogs, and one for blog posts.</
 
 <p>A corresponding down migration might look like the attached code sample.</p>
 
+<h3 id="running-migrations">Running Migrations</h3>
+
+<aside class="warning">
+This is a feature with an actively changing API.
+</aside>
+
+<h4 id="running-migrations-at-the-command-line">Running Migrations at the Command Line</h4>
+
+<p>To apply migrations at the command line, run <code class="prettyprint">lein migrate</code>. If
+you want to roll back all prior migrations, use <code class="prettyprint">lein rollback</code>.</p>
+
+<p>Titan AOT-compiles migration classes, enabling you to run migrations using an
+Uberjar as part of your deployment process as well. Running migrations this way
+can be done by executing <code class="prettyprint">java -cp path/to/app.jar titan.commands.db.migrate</code>.</p>
+
+<h4 id="running-migrations-at-the-repl">Running Migrations at the REPL</h4>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">require</span><span class="w"> </span><span class="ss">'titan.db.migrations</span><span class="p">)</span><span class="w">
+</span><span class="p">(</span><span class="nf">titan.db.migrations/migrate</span><span class="p">)</span><span class="w">
+</span></code></pre>
+
+<p>To apply migrations from the REPL, first require the Titan database migrations
+namespace, then run the <code class="prettyprint">migrate</code> command. You can also roll migrations back
+with <code class="prettyprint">rollback</code>.</p>
+
 <h2 id="models">Models</h2>
-<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">yourapp.model</span><span class="w">
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">example.model</span><span class="w">
   </span><span class="p">(</span><span class="no">:require</span><span class="w"> </span><span class="p">[</span><span class="n">korma.core</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">k</span><span class="p">]))</span><span class="w">
 
 </span><span class="p">(</span><span class="nf">k/defentity</span><span class="w"> </span><span class="n">app-user</span><span class="w">
@@ -302,7 +318,7 @@ dereference. This patterns is</p>
 and then store per-model logic in individual namespaces. By convention,
 entities should be declared in <code class="prettyprint">$yourapp.model</code> and individual models should be
 declared in <code class="prettyprint">$yourapp.model.$model_name</code>.</p>
-<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">yourapp.model.app-user</span><span class="w">
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">example.model.app-user</span><span class="w">
   </span><span class="p">(</span><span class="no">:require</span><span class="w"> </span><span class="p">[</span><span class="n">titan.model</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">m</span><span class="p">]))</span><span class="w">
 </span></code></pre>
 
