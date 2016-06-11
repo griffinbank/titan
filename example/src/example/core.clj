@@ -1,14 +1,12 @@
 (ns example.core
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
-            [example.controller :as controller]
-            [ring.middleware.json :refer [wrap-json-response]]
             [titan.app :refer [defapp]]
             [titan.server :as server]))
 
 ;; some very minimal routing.
 (defroutes app-routes
-  (wrap-json-response (GET "/" [] controller/get-users))
+  (GET "/" [] {:status 200 :body "<h1>Hello World!</h1>"})
   (route/not-found "Beep boop not found"))
 
 ;; `defapp` takes a routing body and stores it in the `titan.app/app` atom

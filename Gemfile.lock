@@ -73,7 +73,7 @@ GEM
       servolux
       tilt (~> 1.4.1)
       uglifier (~> 3.0)
-    middleman-gh-pages (0.3.1)
+    middleman-gh-pages (0.1.1)
       rake (> 0.9.3)
     middleman-sprockets (4.0.0.rc.3)
       middleman-core (~> 4.0)
@@ -114,7 +114,7 @@ PLATFORMS
 DEPENDENCIES
   middleman (~> 4.1.0)
   middleman-autoprefixer (~> 2.7.0)
-  middleman-gh-pages (~> 0.3.1)
+  middleman-gh-pages (~> 0.1.0)
   middleman-sprockets (~> 4.0.0.rc.3)
   middleman-syntax (~> 2.1.0)
   redcarpet (~> 3.3.2)

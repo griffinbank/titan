@@ -1,4 +1,4 @@
-(defproject example "0.1.0-SNAPSHOT"
+(defproject example "0.0.1-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -10,4 +10,4 @@
                  [compojure "1.5.0"]
                  [debugger "0.2.0"]
                  [ring/ring-json "0.4.0"]
-                 [venantius/titan "0.1.0-SNAPSHOT"]])
+                 [venantius/titan "0.0.1-alpha1"]])

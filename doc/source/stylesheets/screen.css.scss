@@ -482,9 +482,12 @@ html, body {
   }
 
   hr {
+    // This is used to align code blocks with text blocks, since I couldn't
+    // get the text to align well otherwise.
     margin: 2em 0;
-    border-top: 2px solid $examples-bg;
-    border-bottom: 2px solid $main-bg;
+    width: 100%;
+    border-top: 0px solid $examples-bg;
+    border-bottom: 0px solid $main-bg;
   }
 
   table {
@@ -546,7 +549,7 @@ html, body {
     background-color: $code-bg;
     padding: 3px;
     border-radius: 3px;
-    @extend %break-words;
+    // @extend %break-words;
     @extend %code-font;
   }
 
@@ -561,12 +564,11 @@ html, body {
     // text-shadow: 0 1px 0 lighten($aside-notice-bg, 15%);
     margin-top: 1.5em;
     margin-bottom: 1.5em;
-    background: $aside-notice-bg;
+    background: #f3f6fb;
     line-height: 1.6;
 
     &.warning {
-      background-color: $aside-warning-bg;
-      text-shadow: 0 1px 0 lighten($aside-warning-bg, 15%);
+      background-color: lighten($aside-warning-bg, 15%);
     }
 
     &.success {
@@ -721,6 +723,11 @@ html, body {
 .highlight {
   .c, .cm, .c1, .c2 {
     color: #93a1a1;
+  }
+
+  .err {
+    color: #dc322f;
+    background-color: transparent;
   }
   
   .k {

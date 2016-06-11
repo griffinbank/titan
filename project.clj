@@ -1,4 +1,4 @@
-(defproject venantius/titan "0.0.1-SNAPSHOT"
+(defproject venantius/titan "0.0.1-alpha1"
   :description "An extensible web application framework for Clojure."
   :url "https://github.com/venantius/titan"
   :license {:name "Eclipse Public License"
@@ -42,7 +42,7 @@
              {:dependencies [[bond "0.2.5"]
                              [org.postgresql/postgresql "9.4-1206-jdbc42"]]
               :env {:database-url "postgres://localhost:5432/titan"}}
-             :test 
+             :test
              {:dependencies [[org.postgresql/postgresql "9.4-1206-jdbc42"]]
               :env {:database-url "postgres://localhost:5432/titan_test"}}}
 )
