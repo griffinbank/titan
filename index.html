@@ -5,7 +5,7 @@
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='//fonts.googleapis.com/css?family=Montserrat:700|Open+Sans:300' rel='stylesheet' type='text/css'>
-    <title>API Documentation</title>
+    <title>Titan Documentation</title>
 
     <style>
       .highlight table td { padding: 5px; }
@@ -112,81 +112,220 @@
       <div class="content">
         <h1 id="titan">Titan</h1>
 
-<p>Titan is a small, simple framework for building Clojure web applications.
-It focuses on conventions around application structure, and provides tooling
-to aid applications following those conventions.</p>
+<p>Titan is a simple and extensible framework for building Clojure web
+applications. Whether you&rsquo;re new to Clojure or an experienced Clojurist, Titan
+can help you develop quickly and with delight.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Titan is a Clojure web application framework with a focus on simplicity,
+extensibilty, and productivity. Titan is designed to make development easy,
+straightforward, and fun.</p>
+
+<p><em>Titan is guided by the following core principles:</em></p>
 
 <ul>
-<li>Application Structure</li>
-<li>Database Models</li>
-<li>Migrations</li>
-<li>Controllers</li>
+<li>Simple is better than complex</li>
+<li>Clarity is better than cleverness</li>
+<li>Build for extension: everything should compose.</li>
 </ul>
+
+<h4 id="a-quick-note-on-the-documentation">A Quick Note on the Documentation</h4>
+
+<p>The code examples included in this documentation are oriented around the
+creation of a hypothetical blog application. The complete source code for this
+demonstration application can be found <a href="https://github.com/venantius/titan/tree/master/example">here</a>.</p>
 
 <h2 id="getting-started">Getting Started</h2>
 
-<h4 id="creating-a-new-titan-app">Creating a New Titan App</h4>
+<p>It&rsquo;s easy to get started with Titan, whether you&rsquo;re starting
+from scratch or modifying an existing application.</p>
 
-<p>To create a new application using the Titan Leiningen template, just run <code class="prettyprint">lein new titan $your_app_name</code>.</p>
+<h3 id="beginning-from-scratch">Beginning From Scratch</h3>
 
-<h4 id="adding-titan-to-an-existing-app">Adding Titan to an Existing App</h4>
-<pre class="highlight clojure"><code><span class="p">{</span><span class="no">:dependencies</span><span class="w"> </span><span class="p">[[</span><span class="n">titan</span><span class="w"> </span><span class="s">"0.1.0"</span><span class="p">]</span><span class="w">
-                </span><span class="p">[</span><span class="n">org.postgresql/postgresql</span><span class="w"> </span><span class="s">"9.4-1206-jdbc42"</span><span class="p">]</span><span class="w">
-                </span><span class="n">...</span><span class="w">
-                </span><span class="p">]}</span><span class="w">
+<aside class="warning">This feature is not yet complete.</aside>
+
+<p>To create a new application using the Titan Leiningen template, just run <code class="prettyprint">lein new titan-app $your_app_name</code>. This will create a version of the example blog application that uses
+the provided application name instead of <code class="prettyprint">example</code>.</p>
+
+<h3 id="adding-titan-to-an-existing-app">Adding Titan to an Existing App</h3>
+
+<p>Adding Titan to an existing application is fairly straighforward, but for
+obvious reasons involves a few more steps than starting from a clean slate.</p>
+
+<h4 id="configure-your-project-clj">Configure your <code class="prettyprint">project.clj</code></h4>
+<pre class="highlight clojure"><code><span class="no">:dependencies</span><span class="w"> </span><span class="p">[[</span><span class="n">titan</span><span class="w"> </span><span class="s">"0.0.1-alpha1"</span><span class="p">]</span><span class="w">
+               </span><span class="c1">; ...
 </span></code></pre>
 
 <p>First, add Titan to your list of dependencies.</p>
+<pre class="highlight clojure"><code><span class="w">               </span><span class="p">[</span><span class="n">org.postgresql/postgresql</span><span class="w"> </span><span class="s">"9.4-1206-jdbc42"</span><span class="p">]</span><span class="w">
+               </span><span class="c1">; ...
+</span></code></pre>
 
 <p>If you&rsquo;re currently using a SQL database for your application, you probably already
 have the appropriate JDBC driver in your dependencies. If not, you&rsquo;ll need to
-add one. The example code on the right is a fairly recent version of the
+add one. The example code includes a fairly recent version of the
 PostgreSQL JDBC driver.</p>
+<pre class="highlight clojure"><code><span class="w">               </span><span class="p">[</span><span class="n">compojure</span><span class="w"> </span><span class="s">"1.5.0"</span><span class="p">]</span><span class="w">
+               </span><span class="c1">;; etc...
+</span><span class="w">               </span><span class="p">]</span><span class="w">
+</span></code></pre>
 
-<h2 id="application-structure">Application Structure</h2>
+<p>Titan doesn&rsquo;t include its own routing engine, so you&rsquo;ll want to make sure you
+have the appropriate dependency included for that as well. In our example code
+you&rsquo;ll find a dependency for
+<a href="https://github.com/weavejester/compojure">Compojure</a>,
+the popular routing library, but you can use whatever routing library you
+prefer.</p>
+<pre class="highlight clojure"><code><span class="no">:aliases</span><span class="w"> </span><span class="p">{</span><span class="s">"migrate"</span><span class="w">  </span><span class="p">[</span><span class="s">"run"</span><span class="w"> </span><span class="s">"-m"</span><span class="w"> </span><span class="s">"titan.db.migrations/migrate"</span><span class="p">]</span><span class="w">
+          </span><span class="s">"rollback"</span><span class="w"> </span><span class="p">[</span><span class="s">"run"</span><span class="w"> </span><span class="s">"-m"</span><span class="w"> </span><span class="s">"titan.db.migrations/rollback"</span><span class="p">]}</span><span class="w">
+</span></code></pre>
 
-<p>Titan </p>
+<p>We also recommend adding some aliases to your <code class="prettyprint">project.clj</code> to make
+command-line migrations more convenient.</p>
+
+<h4 id="configuring-your-application-code">Configuring Your Application Code</h4>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">example.core</span><span class="w">
+  </span><span class="s">"Our sample application's main namespace."</span><span class="w">
+  </span><span class="p">(</span><span class="no">:require</span><span class="w"> </span><span class="p">[</span><span class="n">compojure.core</span><span class="w"> </span><span class="no">:refer</span><span class="w"> </span><span class="no">:all</span><span class="p">]</span><span class="w">
+            </span><span class="p">[</span><span class="n">compojure.route</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">route</span><span class="p">]</span><span class="w">
+            </span><span class="p">[</span><span class="n">titan.app</span><span class="w"> </span><span class="no">:refer</span><span class="w"> </span><span class="p">[</span><span class="n">defapp</span><span class="p">]]</span><span class="w">
+            </span><span class="p">[</span><span class="n">titan.server</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">server</span><span class="p">]))</span><span class="w">
+
+</span><span class="p">(</span><span class="nf">defroutes</span><span class="w"> </span><span class="n">app-routes</span><span class="w">
+  </span><span class="p">(</span><span class="nf">GET</span><span class="w"> </span><span class="s">"/"</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="no">:status</span><span class="w"> </span><span class="mi">200</span><span class="w"> </span><span class="no">:body</span><span class="w"> </span><span class="s">"&lt;h1&gt;Hello World!&lt;/h1&gt;"</span><span class="p">})</span><span class="w">
+  </span><span class="p">(</span><span class="nf">route/not-found</span><span class="w"> </span><span class="s">"Beep boop not found"</span><span class="p">))</span><span class="w">
+
+</span><span class="p">(</span><span class="nf">defapp</span><span class="w"> </span><span class="n">app-routes</span><span class="p">)</span><span class="w">
+</span></code></pre>
+
+<p>Although Titan doesn&rsquo;t have any preferences as to which routing engine
+you use, it does care where you store your main application request handler. For
+many simple web applications, this main handler will either be the routing table
+itself, or a seperate var in which the routing table has been wrapped with a
+middleware layer. In the included example code, the <code class="prettyprint">app-routes</code> var
+is the relevant primary handler.</p>
+
+<p>Titan expects you to wrap your application&rsquo;s main handler in the <code class="prettyprint">defapp</code> macro,
+located in the <code class="prettyprint">titan.app</code> namespace. The <code class="prettyprint">defapp</code> macro is used to store 
+your primary application handler in the <code class="prettyprint">titan.app/app</code> atom (allowing other
+parts of Titan to know where to find it without having to know anything about
+your application structure). Any re-loading of the namespace including the
+<code class="prettyprint">defapp</code> macro will reset the <code class="prettyprint">app</code> atom&rsquo;s contents.</p>
+
+<h4 id="starting-the-titan-server">Starting the Titan server</h4>
+
+<p>To start the Titan server, you</p>
+
+<aside class="warning">I haven&rsquo;t written this documentation yet</aside>
 
 <h1 id="database">Database</h1>
 
-<p>Titan assumes the use of a SQL-driven relational database, and provides
-drop-in solutions for simple database query patterns. Titan also provides a
+<p>Titan assumes the use of a SQL-powered relational database, and provides
+a drop-in solution for simple database query patterns. Titan also provides a
 straightforward, pure SQL solution for migrations.</p>
 
 <p>Under the hood, Titan is powered by <a href="https://github.com/korma/korma">Korma</a> and
 <a href="https://github.com/weavejester/ragtime">Ragtime</a>.</p>
 
+<h2 id="migrations">Migrations</h2>
+
+<p>Database migrations should be written in pure SQL and stored in individual files
+in your project&rsquo;s <code class="prettyprint">resources/migrations</code> directory. Each migration should have
+one file for the up migration and a corresponding file for the down migration.</p>
+
+<p>Up migration files should use the <code class="prettyprint">.up.sql</code> extension, while down migration
+files should use <code class="prettyprint">down.sql.</code> Migration filenames should be unique and ordered -
+in general, using the current time (down to the second) is a good practice for
+generating an ordering prefix.</p>
+
+<aside class="notice">
+On OS X, you can get the current time with <code>date -u +"%Y%m%d%H%M%S"</code>
+</aside>
+
+<h3 id="writing-migrations">Writing Migrations</h3>
+<pre class="highlight sql"><code><span class="cm">/*20160601062426_initial.up.sql*/</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">author</span> <span class="p">(</span>
+  <span class="n">id</span>       <span class="n">SERIAL</span>  <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+  <span class="n">username</span> <span class="n">TEXT</span>    <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="n">password</span> <span class="n">TEXT</span>    <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="p">);</span>
+<span class="c1">-- ;;
+</span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">blog</span> <span class="p">(</span>
+  <span class="n">id</span>    <span class="n">SERIAL</span>  <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+  <span class="n">title</span> <span class="n">TEXT</span>    <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="p">);</span>
+<span class="c1">-- ;;
+</span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">post</span> <span class="p">(</span>
+  <span class="n">id</span>        <span class="n">SERIAL</span>  <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+  <span class="n">author_id</span> <span class="n">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">REFERENCES</span> <span class="n">author</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">ON</span> <span class="k">DELETE</span> <span class="k">CASCADE</span><span class="p">,</span>
+  <span class="n">blog_id</span>   <span class="n">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">REFERENCES</span> <span class="n">blog</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">ON</span> <span class="k">DELETE</span> <span class="k">CASCADE</span><span class="p">,</span>
+  <span class="n">content</span>   <span class="n">TEXT</span>    <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="p">);</span>
+</code></pre>
+
+<p>Let&rsquo;s consider an example blog application. Our initial migration, creating the
+relevant tables, might look like the code on the right. In this migration, we&rsquo;re
+creating three tables: one for authors, one for blogs, and one for blog posts.</p>
+
+<hr>
+<pre class="highlight sql"><code><span class="cm">/*20160601062426_initial.down.sql*/</span>
+<span class="k">DROP</span> <span class="k">TABLE</span> <span class="n">post</span><span class="p">;</span>
+<span class="c1">--;;
+</span><span class="k">DROP</span> <span class="k">TABLE</span> <span class="n">blog</span><span class="p">;</span>
+<span class="c1">--;;
+</span><span class="k">DROP</span> <span class="k">TABLE</span> <span class="n">author</span><span class="p">;;</span>
+</code></pre>
+
+<p>A corresponding down migration might look like the attached code sample.</p>
+
 <h2 id="models">Models</h2>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">yourapp.model</span><span class="w">
+  </span><span class="p">(</span><span class="no">:require</span><span class="w"> </span><span class="p">[</span><span class="n">korma.core</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">k</span><span class="p">]))</span><span class="w">
 
-<p>We recommend defining all of your Korma entities in a single namespace
-and then storing per-model logic in individual namespaces. By convention,
-entities should be declared in <code class="prettyprint">$yourapp.model</code> and individual models should be
-declared in <code class="prettyprint">$yourapp.model.$model_name</code>.</p>
-
-<h3 id="defmodel">Defmodel</h3>
-<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">korma/defentity</span><span class="w"> </span><span class="n">app-user</span><span class="w">
-  </span><span class="p">(</span><span class="nf">korma/table</span><span class="w"> </span><span class="no">:app_user</span><span class="p">))</span><span class="w">
-
-</span><span class="p">(</span><span class="nf">defmodel</span><span class="w"> </span><span class="n">app-user</span><span class="p">)</span><span class="w">
+</span><span class="p">(</span><span class="nf">k/defentity</span><span class="w"> </span><span class="n">app-user</span><span class="w">
+  </span><span class="p">(</span><span class="nf">k/table</span><span class="w"> </span><span class="no">:app_user</span><span class="p">))</span><span class="w">
 </span></code></pre>
 
-<p>Titan has a single model-related macro, <code class="prettyprint">defmodel</code>. <code class="prettyprint">defmodel</code> takes a single argument - a Korma entity, and declares the following functions in the namespaces in which it&rsquo;s used:</p>
+<p>Titan provides a SQL query DSL that wraps <a href="https://github.com/korma/korma">Korma</a>
+for runtime query generation and execution. This DSL represents an explicit
+subset of Korma&rsquo;s functionality with a specific focus on composable functions
+and delayed execution.</p>
 
-<h4 id="fetch">Fetch</h4>
+<aside class="warning">This documentation is incomplete</aside>
+
+<p>The expected usage pattern for a Titan query is composition followed by
+dereference. This patterns is</p>
+
+<p>You should define all of your Korma entities in a single namespace
+and then store per-model logic in individual namespaces. By convention,
+entities should be declared in <code class="prettyprint">$yourapp.model</code> and individual models should be
+declared in <code class="prettyprint">$yourapp.model.$model_name</code>.</p>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">yourapp.model.app-user</span><span class="w">
+  </span><span class="p">(</span><span class="no">:require</span><span class="w"> </span><span class="p">[</span><span class="n">titan.model</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">m</span><span class="p">]))</span><span class="w">
+</span></code></pre>
+
+<h3 id="fetch">Fetch</h3>
 <pre class="highlight clojure"><code><span class="c1">;; SELECT * FROM app_user;
-</span><span class="p">(</span><span class="nf">fetch-app-user</span><span class="p">)</span><span class="w">
-</span><span class="c1">;; =&gt; ({:id 1 :name "Venantius"}, {:id 2 :name "Test User"})
-</span><span class="w">
+</span><span class="err">@</span><span class="p">(</span><span class="nf">m/fetch</span><span class="w"> </span><span class="n">app-user</span><span class="p">)</span><span class="w">
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="no">:id</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Venantius"</span><span class="p">}</span><span class="n">,</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Test User"</span><span class="p">})</span><span class="w">
+
 </span><span class="c1">;; SELECT * FROM app_user WHERE id = 2;
-</span><span class="p">(</span><span class="nf">fetch-app-user</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="p">})</span><span class="w">
-</span><span class="c1">;; =&gt; {:id 2 :name "Test User"}
+</span><span class="err">@</span><span class="p">(</span><span class="nf">m/fetch</span><span class="w"> </span><span class="n">app-user</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="p">})</span><span class="w">
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Test User"</span><span class="p">})</span><span class="w">
+
+</span><span class="c1">;; SELECT * FROM app_user LIMIT 1
+</span><span class="err">@</span><span class="p">(</span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">m/fetch</span><span class="w"> </span><span class="n">app-user</span><span class="p">)</span><span class="w">
+     </span><span class="p">(</span><span class="nf">m/limit</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="w">
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="no">:id</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Test User"</span><span class="p">})</span><span class="w">
 </span></code></pre>
 
 <p>Fetch records for a model with <code class="prettyprint">fetch</code>.</p>
 
 <p>You can fetch all records where a map of parameters matches by passing that in as well.</p>
 
-<h4 id="fetch-one">Fetch-one</h4>
+<h3 id="fetch-one">Fetch-one</h3>
 <pre class="highlight clojure"><code><span class="c1">;; SELECT * FROM app_user WHERE id = 2 LIMIT 1;
 </span><span class="p">(</span><span class="nf">fetch-one-app-user</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="p">})</span><span class="w">
 </span><span class="c1">;; =&gt; {:id 2 :name "Test User"}
@@ -198,7 +337,7 @@ declared in <code class="prettyprint">$yourapp.model.$model_name</code>.</p>
 Note that you&rsquo;ll get a single map back from <code>fetch-one</code>, not a seq.
 </aside>
 
-<h4 id="create">Create</h4>
+<h3 id="create">Create</h3>
 <pre class="highlight clojure"><code><span class="c1">;; INSERT INTO app_user (name) VALUES ('Bear');
 </span><span class="p">(</span><span class="nf">create-app-user!</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Bear"</span><span class="p">})</span><span class="w">
 </span><span class="c1">;; =&gt; {:id 3 :name "Bear"}
@@ -207,7 +346,7 @@ Note that you&rsquo;ll get a single map back from <code>fetch-one</code>, not a 
 <p>Insert a new record into the database with <code class="prettyprint">create</code>. Returns the inserted
 record.</p>
 
-<h4 id="update">Update</h4>
+<h3 id="update">Update</h3>
 <pre class="highlight clojure"><code><span class="p">(</span><span class="nf">update-app-user!</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Ursa Americanus Kermodei"</span><span class="p">})</span><span class="w">
 </span><span class="c1">;; =&gt; {:id 3 :name "Ursa Americanus Kermodei"}
 </span></code></pre>
@@ -215,7 +354,7 @@ record.</p>
 <p>Update the record with a given id to have the provided new fields. Returns the
 updated record.</p>
 
-<h4 id="delete">Delete</h4>
+<h3 id="delete">Delete</h3>
 <pre class="highlight clojure"><code><span class="c1">;; DELETE FROM app_user WHERE id = 3;
 </span><span class="p">(</span><span class="nf">delete-app-user!</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="p">})</span><span class="w">
 </span><span class="c1">;; =&gt; 1 ;; returns the number of records deleted
@@ -223,15 +362,6 @@ updated record.</p>
 
 <p>Deletes all records matching the provided parameters. Returns the number of records
 deleted.</p>
-
-<h2 id="migrations">Migrations</h2>
-
-<p>Database migrations should be individual SQL files stored in
-<code class="prettyprint">resources/migrations</code>.</p>
-
-<p>As an example, your application&rsquo;s first migration might be stored in
-<code class="prettyprint">001-table_creation.up.sql</code>. The corresponding rollback would be stored in
-<code class="prettyprint">001-table_creation.down.sql</code>.</p>
 
 <h1 id="controllers">Controllers</h1>
 
@@ -256,16 +386,11 @@ schema as follows:</p>
   </span><span class="p">(</span><span class="nf">behavior</span><span class="w"> </span><span class="n">...</span><span class="p">))</span><span class="w">
 </span></code></pre>
 
-<h2 id="usage">Usage</h2>
+<h1 id="about">About</h1>
 
-<p>FIXME</p>
+<p>Titan and any associated documentation is Copyright © 2016 W. David Jarvis</p>
 
-<h2 id="license">License</h2>
-
-<p>Copyright © 2016 FIXME</p>
-
-<p>Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.</p>
+<p>Titan is distributed under the Eclipse Public License version 1.0.</p>
 
       </div>
       <div class="dark-box">
