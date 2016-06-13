@@ -19,8 +19,8 @@
   "Initializes the DB connection pool and runs any necessary migrations."
   [test-ns]
   (db/set-korma-db!)
-  (test-ns)
-  (migrations/migrate {:reporter migrations/silent-reporter}))
+  (migrations/migrate {:reporter migrations/silent-reporter})
+  (test-ns))
 
 (defn- reset-on-finish
   "After the test has finished running, fully roll back the database and re-run
