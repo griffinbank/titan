@@ -22,7 +22,7 @@
 
 (deftest create!-works
   (is (= @(model/create!
-            db/author {:name "Sample" :password hashed-pw})
+           db/author {:name "Sample" :password hashed-pw})
          {:id 3 :name "Sample" :password hashed-pw})))
 
 (deftest fetch-works
@@ -42,6 +42,14 @@
   (is (= @(-> (model/fetch db/author)
               (model/fields :name))
          (list {:name "Venantius"} {:name "Test User"}))))
+
+(deftest update-works
+  (is (= @(model/update! db/author {:id 1} {:name "Bear"})
+         1))
+  (is (= @(-> (model/fetch-one db/author)
+              (model/where {:name "Bear"})
+              (model/fields :id :name))
+         {:id 1 :name "Bear"})))
 
 (deftest delete!-works
   @(model/delete! db/author)

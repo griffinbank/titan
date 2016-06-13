@@ -119,7 +119,6 @@ body {
   }
 
   aside {
-    padding: 1em;
     border: 1px solid $print-color-light;
     border-radius: 5px;
     margin-top: 1.5em;
@@ -129,7 +128,7 @@ body {
 
   aside:before {
     vertical-align: middle;
-    padding-right: 0.5em;
+    padding-right: 0;
     font-size: 14px;
   }
 

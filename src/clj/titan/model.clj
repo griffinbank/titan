@@ -11,9 +11,12 @@
 
 (defrecord TitanQuery [alias aliases db ent fields
                        from group joins modifiers
-                       order results table type where]
+                       order results table type where
+                       fetch-one?]
   clojure.lang.IDeref
-  (deref [this] (korma/exec this)))
+  (deref [this] (if (:fetch-one? this)
+                  (first (korma/exec this))
+                  (korma/exec this))))
 
 ;; Declare local versions of all of these functions
 
@@ -109,18 +112,46 @@
 ;; Utility queries
 
 (defn create!
+  "Create an INSERT TitanQuery. Dereference to execute."
   [entity vs]
   (let [query (-> (korma/insert* entity)
                   (korma/values vs))]
     (map->TitanQuery query)))
 
 (defn fetch
+  "Create a SELECT TitanQuery. Dereference to execute."
   ([entity]
    (map->TitanQuery (korma/select* entity)))
   ([entity conditions]
    (let [query (-> (korma/select* entity)
                    (korma/where conditions))]
-     (map->TitanQuery (korma/select* query)))))
+     (map->TitanQuery query))))
+
+(defn fetch-one
+  "Like fetch, but creates a SELECT TitanQuery with a LIMIT of 1. When
+  dereferenced, will return a map rather than a seq."
+  ([entity]
+   (let [query (-> (korma/select* entity)
+                   (korma/limit 1)
+                   (assoc :fetch-one? true))]
+     (map->TitanQuery query)))
+  ([entity conditions]
+   (let [query (-> (korma/select* entity)
+                   (korma/where conditions)
+                   (korma/limit 1)
+                   (assoc :fetch-one? true))]
+     (map->TitanQuery query))))
+
+(defn update!
+  "Create an UPDATE TitanQuery. The conditions argument specifies the WHERE clause
+  and the values argument specifies the fields and values to be set.
+  
+  Returns the number of records updated."
+  ([entity conditions values]
+   (let [query (-> (korma/update* entity)
+                   (korma/where conditions)
+                   (korma/set-fields values))]
+     (map->TitanQuery query))))
 
 (defn delete!
   ([entity]

@@ -13,7 +13,7 @@ develop quickly and with delight.
 ## Getting Started
 
 If you're getting started from scratch, you can quickly create a new Titan
-project by using the Titan Leiningen template:
+project by using the Titan Leiningen template (NOT CURRENTLY SUPPORTED)
 
 ```
 lein new titan-app APPNAME
@@ -26,6 +26,11 @@ guide](https://venantius.github.io/titan/#adding-titan-to-an-existing-app).
 ## Documentation
 
 The latest documentation can be found at https://venantius.github.io/titan.
+
+## Community
+
+Feel free to join the community on our [mailing
+list](https://groups.google.com/forum/#!forum/titan-developers).
 
 ## License
 

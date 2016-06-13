@@ -580,20 +580,23 @@ html, body {
 
   aside:before {
     vertical-align: middle;
-    padding-right: 0.5em;
-    font-size: 14px;
+    padding-right: 0;
+    position: relative;
+    right: 2em;
+    margin-right: 0;
+    font-size: 18px;
   }
 
   aside.notice:before {
-    @extend %icon-info-sign;
+    // @extend %icon-info-sign;
   }
 
   aside.warning:before {
-    @extend %icon-exclamation-sign;
+    // @extend %icon-exclamation-sign;
   }
 
   aside.success:before {
-    @extend %icon-ok-sign;
+    // @extend %icon-ok-sign;
   }
 
   .search-highlight {

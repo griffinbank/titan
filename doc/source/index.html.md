@@ -101,11 +101,34 @@ Titan to know where to find it without having to know the details of your
 your application structure. Re-loading the namespace including the `defapp`
 macro will reset the `app` atom's contents.
 
+***
+
+```clojure
+(defn -main
+  []
+  (server/start-server!))
+```
+
+In addition to defining your application's primary handler, you'll also need to
+include a call to `titan.server/start-server!` in your application's main method.
+
+Calling `start-server!` will configure a database connection pool based on the
+database connection string set by the environment variable `DATABASE_URL` (or as
+configured by [environ](https://github.com/weavejester/environ)) and will then
+boot an Undertow server to serve requests on localhost at port 5000. You can
+override both the host and port options by setting the `HOST` and `PORT`
+environment variables.
+
 #### Starting the Titan server
 
-To start the Titan server, you
+To boot the Titan server from the command line, just use `lein run`.
 
-<aside class="warning">I haven't written this documentation yet</aside>
+```clojure
+(example.core/-main)
+```
+
+If you're focused on a more REPL-based development flow, you can also boot the
+application server from the REPL. Just invoke your main method and go!
 
 # Database
 
@@ -198,14 +221,34 @@ To apply migrations from the REPL, first require the Titan database migrations
 namespace, then run the `migrate` command. You can also roll migrations back
 with `rollback`.
 
-## Models
+## Declaring Models
 
 ```clojure
 (ns example.model
   (:require [korma.core :as k]))
 
-(k/defentity app-user
-  (k/table :app_user))
+(k/defentity author)
+(k/defentity blog)
+(k/defentity post
+  (k/belongs-to author)
+  (k/belongs-to blog))
+```
+
+At the moment, models are defined directly using [Korma](https://github.com/korma/korma).
+Refer to the Korma [documentation](http://sqlkorma.com/docs#entities) for details
+on how to declare model entities.
+
+<aside class="notice">
+The recommended pattern for model declaration is to declare all of your models
+in a single namespace, typically <code>$yourapp.model</code>
+</aside>
+
+## Interacting With Models
+
+```clojure
+(ns example.model.author
+  (:require [example.model :as db]
+            [titan.model :as m]))
 ```
 
 Titan provides a SQL query DSL that wraps [Korma](https://github.com/korma/korma)
@@ -213,85 +256,80 @@ for runtime query generation and execution. This DSL represents an explicit
 subset of Korma's functionality with a specific focus on composable functions
 and delayed execution.
 
-<aside class="warning">This documentation is incomplete</aside>
-
-The expected usage pattern for a Titan query is composition followed by
-dereference. This patterns is
-
-
-
-You should define all of your Korma entities in a single namespace
-and then store per-model logic in individual namespaces. By convention,
-entities should be declared in `$yourapp.model` and individual models should be
-declared in `$yourapp.model.$model_name`.
-
-```clojure
-(ns example.model.app-user
-  (:require [titan.model :as m]))
-```
+<aside class="notice">
+Per-model logic should be stored in individual namespaces. By convention,
+individual models should be declared in <code>$yourapp.model.$modelname</code>
+</aside>
 
 ### Fetch
 
 ```clojure
-;; SELECT * FROM app_user;
-@(m/fetch app-user)
-=> ({:id 1 :name "Venantius"}, {:id 2 :name "Test User"})
+;; SELECT * FROM author;
+=> @(m/fetch db/author)
+({:id 1
+  :name "Venantius"
+  :password "$2a$10$hjTKyciiHPHutU4YAL8TK.wG6LD8L7Z0H.7jQmsXCmMK/A0/8XqqO"}
+ {:id 2
+  :name "Test User"
+  :password "$2a$10$xNi.5prsrvR/c6Tk0BvTa.KDZxeMaCc.OhZYGFvziNbmdcS21rzRe"})
 
-;; SELECT * FROM app_user WHERE id = 2;
-@(m/fetch app-user {:id 2})
-=> ({:id 2 :name "Test User"})
+;; SELECT * FROM author WHERE id = 2;
+=> @(m/fetch db/author {:id 2})
+({:id 2,
+  :name "Test User",
+  :password "$2a$10$xNi.5prsrvR/c6Tk0BvTa.KDZxeMaCc.OhZYGFvziNbmdcS21rzRe"})
 
-;; SELECT * FROM app_user LIMIT 1
-@(-> (m/fetch app-user)
-     (m/limit 1))
-=> ({:id 1 :name "Test User"})
+;; SELECT * FROM author LIMIT 1
+=> @(-> (m/fetch db/author)
+        (m/limit 1))
+({:id 1,
+  :name "Venantius",
+  :password "$2a$10$hjTKyciiHPHutU4YAL8TK.wG6LD8L7Z0H.7jQmsXCmMK/A0/8XqqO"})
 ```
 
-Fetch records for a model with `fetch`.
-
-You can fetch all records where a map of parameters matches by passing that in as well.
+Titan's `fetch` method is a convenient wrapper around a SQL `SELECT` statement.
+With one argument, `fetch` will default to creating a simple `SELECT * FROM $table`
+query. With two arguments, `fetch` will defer to Korma's query construction engine
+to filter the query using a SQL `WHERE` condition.
 
 ### Fetch-one
 
 ```clojure
-;; SELECT * FROM app_user WHERE id = 2 LIMIT 1;
-(fetch-one-app-user {:id 2})
-;; => {:id 2 :name "Test User"}
+;; SELECT * FROM author WHERE id = 2 LIMIT 1;
+=> @(m/fetch-one author {:id 2})
+{:id 2 :name "Test User"}
 ```
 
 If you just want to fetch a single record from the database, use `fetch-one`.
-
-<aside class="notice">
-Note that you'll get a single map back from <code>fetch-one</code>, not a seq.
-</aside>
+Returns a single map, not a seq.
 
 ### Create
 
 ```clojure
-;; INSERT INTO app_user (name) VALUES ('Bear');
-(create-app-user! {:name "Bear"})
-;; => {:id 3 :name "Bear"}
+;; INSERT INTO author (name) VALUES ('Bear');
+=> @(m/create! author {:name "Bear" :password "youshouldhashthis"})
+{:id 3 :name "Bear" :password "youshouldhashthis"}
 ```
 
-Insert a new record into the database with `create`. Returns the inserted
+Insert a new record into the database with `create!`. Returns the inserted
 record.
 
 ### Update
 
 ```clojure
-(update-app-user! 3 {:name "Ursa Americanus Kermodei"})
-;; => {:id 3 :name "Ursa Americanus Kermodei"}
+;; UPDATE author SET name = 'Ursa Americanus Kermodei' WHERE (author.id = 3);
+=> (update author! {:id 3} {:name "Ursa Americanus Kermodei"})
+1
 ```
 
-Update the record with a given id to have the provided new fields. Returns the
-updated record.
+Update records with `update!`. Returns the number of updated records.
 
 ### Delete
 
 ```clojure
-;; DELETE FROM app_user WHERE id = 3;
-(delete-app-user! {:id 3})
-;; => 1 ;; returns the number of records deleted
+;; DELETE FROM author WHERE id = 3;
+=> (delete author! {:id 3})
+1
 ```
 
 Deletes all records matching the provided parameters. Returns the number of records
