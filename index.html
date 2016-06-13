@@ -205,11 +205,30 @@ Titan to know where to find it without having to know the details of your
 your application structure. Re-loading the namespace including the <code class="prettyprint">defapp</code>
 macro will reset the <code class="prettyprint">app</code> atom&rsquo;s contents.</p>
 
+<hr>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="k">defn</span><span class="w"> </span><span class="n">-main</span><span class="w">
+  </span><span class="p">[]</span><span class="w">
+  </span><span class="p">(</span><span class="nf">server/start-server!</span><span class="p">))</span><span class="w">
+</span></code></pre>
+
+<p>In addition to defining your application&rsquo;s primary handler, you&rsquo;ll also need to
+include a call to <code class="prettyprint">titan.server/start-server!</code> in your application&rsquo;s main method.</p>
+
+<p>Calling <code class="prettyprint">start-server!</code> will configure a database connection pool based on the
+database connection string set by the environment variable <code class="prettyprint">DATABASE_URL</code> (or as
+configured by <a href="https://github.com/weavejester/environ">environ</a>) and will then
+boot an Undertow server to serve requests on localhost at port 5000. You can
+override both the host and port options by setting the <code class="prettyprint">HOST</code> and <code class="prettyprint">PORT</code>
+environment variables.</p>
+
 <h4 id="starting-the-titan-server">Starting the Titan server</h4>
 
-<p>To start the Titan server, you</p>
+<p>To boot the Titan server from the command line, just use <code class="prettyprint">lein run</code>.</p>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">example.core/-main</span><span class="p">)</span><span class="w">
+</span></code></pre>
 
-<aside class="warning">I haven&rsquo;t written this documentation yet</aside>
+<p>If you&rsquo;re focused on a more REPL-based development flow, you can also boot the
+application server from the REPL. Just invoke your main method and go!</p>
 
 <h1 id="database">Database</h1>
 
@@ -240,7 +259,7 @@ On OS X, you can get the current time with <code>date -u +"%Y%m%d%H%M%S"</code>
 <pre class="highlight sql"><code><span class="cm">/*20160601062426_initial.up.sql*/</span>
 <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">author</span> <span class="p">(</span>
   <span class="n">id</span>       <span class="n">SERIAL</span>  <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
-  <span class="n">username</span> <span class="n">TEXT</span>    <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="n">name</span>     <span class="n">TEXT</span>    <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
   <span class="n">password</span> <span class="n">TEXT</span>    <span class="k">NOT</span> <span class="k">NULL</span>
 <span class="p">);</span>
 <span class="c1">-- ;;
@@ -296,12 +315,30 @@ can be done by executing <code class="prettyprint">java -cp path/to/app.jar tita
 namespace, then run the <code class="prettyprint">migrate</code> command. You can also roll migrations back
 with <code class="prettyprint">rollback</code>.</p>
 
-<h2 id="models">Models</h2>
+<h2 id="declaring-models">Declaring Models</h2>
 <pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">example.model</span><span class="w">
   </span><span class="p">(</span><span class="no">:require</span><span class="w"> </span><span class="p">[</span><span class="n">korma.core</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">k</span><span class="p">]))</span><span class="w">
 
-</span><span class="p">(</span><span class="nf">k/defentity</span><span class="w"> </span><span class="n">app-user</span><span class="w">
-  </span><span class="p">(</span><span class="nf">k/table</span><span class="w"> </span><span class="no">:app_user</span><span class="p">))</span><span class="w">
+</span><span class="p">(</span><span class="nf">k/defentity</span><span class="w"> </span><span class="n">author</span><span class="p">)</span><span class="w">
+</span><span class="p">(</span><span class="nf">k/defentity</span><span class="w"> </span><span class="n">blog</span><span class="p">)</span><span class="w">
+</span><span class="p">(</span><span class="nf">k/defentity</span><span class="w"> </span><span class="n">post</span><span class="w">
+  </span><span class="p">(</span><span class="nf">k/belongs-to</span><span class="w"> </span><span class="n">author</span><span class="p">)</span><span class="w">
+  </span><span class="p">(</span><span class="nf">k/belongs-to</span><span class="w"> </span><span class="n">blog</span><span class="p">))</span><span class="w">
+</span></code></pre>
+
+<p>At the moment, models are defined directly using <a href="https://github.com/korma/korma">Korma</a>.
+Refer to the Korma <a href="http://sqlkorma.com/docs#entities">documentation</a> for details
+on how to declare model entities.</p>
+
+<aside class="notice">
+The recommended pattern for model declaration is to declare all of your models
+in a single namespace, typically <code>$yourapp.model</code>
+</aside>
+
+<h2 id="interacting-with-models">Interacting With Models</h2>
+<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">example.model.author</span><span class="w">
+  </span><span class="p">(</span><span class="no">:require</span><span class="w"> </span><span class="p">[</span><span class="n">example.model</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">db</span><span class="p">]</span><span class="w">
+            </span><span class="p">[</span><span class="n">titan.model</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">m</span><span class="p">]))</span><span class="w">
 </span></code></pre>
 
 <p>Titan provides a SQL query DSL that wraps <a href="https://github.com/korma/korma">Korma</a>
@@ -309,98 +346,74 @@ for runtime query generation and execution. This DSL represents an explicit
 subset of Korma&rsquo;s functionality with a specific focus on composable functions
 and delayed execution.</p>
 
-<aside class="warning">This documentation is incomplete</aside>
-
-<p>The expected usage pattern for a Titan query is composition followed by
-dereference. This patterns is</p>
-
-<p>You should define all of your Korma entities in a single namespace
-and then store per-model logic in individual namespaces. By convention,
-entities should be declared in <code class="prettyprint">$yourapp.model</code> and individual models should be
-declared in <code class="prettyprint">$yourapp.model.$model_name</code>.</p>
-<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">ns</span><span class="w"> </span><span class="n">example.model.app-user</span><span class="w">
-  </span><span class="p">(</span><span class="no">:require</span><span class="w"> </span><span class="p">[</span><span class="n">titan.model</span><span class="w"> </span><span class="no">:as</span><span class="w"> </span><span class="n">m</span><span class="p">]))</span><span class="w">
-</span></code></pre>
-
-<h3 id="fetch">Fetch</h3>
-<pre class="highlight clojure"><code><span class="c1">;; SELECT * FROM app_user;
-</span><span class="err">@</span><span class="p">(</span><span class="nf">m/fetch</span><span class="w"> </span><span class="n">app-user</span><span class="p">)</span><span class="w">
-</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="no">:id</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Venantius"</span><span class="p">}</span><span class="n">,</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Test User"</span><span class="p">})</span><span class="w">
-
-</span><span class="c1">;; SELECT * FROM app_user WHERE id = 2;
-</span><span class="err">@</span><span class="p">(</span><span class="nf">m/fetch</span><span class="w"> </span><span class="n">app-user</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="p">})</span><span class="w">
-</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Test User"</span><span class="p">})</span><span class="w">
-
-</span><span class="c1">;; SELECT * FROM app_user LIMIT 1
-</span><span class="err">@</span><span class="p">(</span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">m/fetch</span><span class="w"> </span><span class="n">app-user</span><span class="p">)</span><span class="w">
-     </span><span class="p">(</span><span class="nf">m/limit</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="w">
-</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="no">:id</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Test User"</span><span class="p">})</span><span class="w">
-</span></code></pre>
-
-<p>Fetch records for a model with <code class="prettyprint">fetch</code>.</p>
-
-<p>You can fetch all records where a map of parameters matches by passing that in as well.</p>
-
-<h3 id="fetch-one">Fetch-one</h3>
-<pre class="highlight clojure"><code><span class="c1">;; SELECT * FROM app_user WHERE id = 2 LIMIT 1;
-</span><span class="p">(</span><span class="nf">fetch-one-app-user</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="p">})</span><span class="w">
-</span><span class="c1">;; =&gt; {:id 2 :name "Test User"}
-</span></code></pre>
-
-<p>If you just want to fetch a single record from the database, use <code class="prettyprint">fetch-one</code>.</p>
-
 <aside class="notice">
-Note that you&rsquo;ll get a single map back from <code>fetch-one</code>, not a seq.
+Per-model logic should be stored in individual namespaces. By convention,
+individual models should be declared in <code>$yourapp.model.$modelname</code>
 </aside>
 
-<h3 id="create">Create</h3>
-<pre class="highlight clojure"><code><span class="c1">;; INSERT INTO app_user (name) VALUES ('Bear');
-</span><span class="p">(</span><span class="nf">create-app-user!</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Bear"</span><span class="p">})</span><span class="w">
-</span><span class="c1">;; =&gt; {:id 3 :name "Bear"}
+<h3 id="fetch">Fetch</h3>
+<pre class="highlight clojure"><code><span class="c1">;; SELECT * FROM author;
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="err">@</span><span class="p">(</span><span class="nf">m/fetch</span><span class="w"> </span><span class="n">db/author</span><span class="p">)</span><span class="w">
+</span><span class="p">({</span><span class="no">:id</span><span class="w"> </span><span class="mi">1</span><span class="w">
+  </span><span class="no">:name</span><span class="w"> </span><span class="s">"Venantius"</span><span class="w">
+  </span><span class="no">:password</span><span class="w"> </span><span class="s">"$2a$10$hjTKyciiHPHutU4YAL8TK.wG6LD8L7Z0H.7jQmsXCmMK/A0/8XqqO"</span><span class="p">}</span><span class="w">
+ </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="w">
+  </span><span class="no">:name</span><span class="w"> </span><span class="s">"Test User"</span><span class="w">
+  </span><span class="no">:password</span><span class="w"> </span><span class="s">"$2a$10$xNi.5prsrvR/c6Tk0BvTa.KDZxeMaCc.OhZYGFvziNbmdcS21rzRe"</span><span class="p">})</span><span class="w">
+
+</span><span class="c1">;; SELECT * FROM author WHERE id = 2;
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="err">@</span><span class="p">(</span><span class="nf">m/fetch</span><span class="w"> </span><span class="n">db/author</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="p">})</span><span class="w">
+</span><span class="p">({</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="n">,</span><span class="w">
+  </span><span class="no">:name</span><span class="w"> </span><span class="s">"Test User"</span><span class="n">,</span><span class="w">
+  </span><span class="no">:password</span><span class="w"> </span><span class="s">"$2a$10$xNi.5prsrvR/c6Tk0BvTa.KDZxeMaCc.OhZYGFvziNbmdcS21rzRe"</span><span class="p">})</span><span class="w">
+
+</span><span class="c1">;; SELECT * FROM author LIMIT 1
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="err">@</span><span class="p">(</span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">m/fetch</span><span class="w"> </span><span class="n">db/author</span><span class="p">)</span><span class="w">
+        </span><span class="p">(</span><span class="nf">m/limit</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="w">
+</span><span class="p">({</span><span class="no">:id</span><span class="w"> </span><span class="mi">1</span><span class="n">,</span><span class="w">
+  </span><span class="no">:name</span><span class="w"> </span><span class="s">"Venantius"</span><span class="n">,</span><span class="w">
+  </span><span class="no">:password</span><span class="w"> </span><span class="s">"$2a$10$hjTKyciiHPHutU4YAL8TK.wG6LD8L7Z0H.7jQmsXCmMK/A0/8XqqO"</span><span class="p">})</span><span class="w">
 </span></code></pre>
 
-<p>Insert a new record into the database with <code class="prettyprint">create</code>. Returns the inserted
+<p>Titan&rsquo;s <code class="prettyprint">fetch</code> method is a convenient wrapper around a SQL <code class="prettyprint">SELECT</code> statement.
+With one argument, <code class="prettyprint">fetch</code> will default to creating a simple <code class="prettyprint">SELECT * FROM $table</code>
+query. With two arguments, <code class="prettyprint">fetch</code> will defer to Korma&rsquo;s query construction engine
+to filter the query using a SQL <code class="prettyprint">WHERE</code> condition.</p>
+
+<h3 id="fetch-one">Fetch-one</h3>
+<pre class="highlight clojure"><code><span class="c1">;; SELECT * FROM author WHERE id = 2 LIMIT 1;
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="err">@</span><span class="p">(</span><span class="nf">m/fetch-one</span><span class="w"> </span><span class="n">author</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="p">})</span><span class="w">
+</span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Test User"</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>If you just want to fetch a single record from the database, use <code class="prettyprint">fetch-one</code>.
+Returns a single map, not a seq.</p>
+
+<h3 id="create">Create</h3>
+<pre class="highlight clojure"><code><span class="c1">;; INSERT INTO author (name) VALUES ('Bear');
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="err">@</span><span class="p">(</span><span class="nf">m/create!</span><span class="w"> </span><span class="n">author</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Bear"</span><span class="w"> </span><span class="no">:password</span><span class="w"> </span><span class="s">"youshouldhashthis"</span><span class="p">})</span><span class="w">
+</span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="no">:name</span><span class="w"> </span><span class="s">"Bear"</span><span class="w"> </span><span class="no">:password</span><span class="w"> </span><span class="s">"youshouldhashthis"</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Insert a new record into the database with <code class="prettyprint">create!</code>. Returns the inserted
 record.</p>
 
 <h3 id="update">Update</h3>
-<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">update-app-user!</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Ursa Americanus Kermodei"</span><span class="p">})</span><span class="w">
-</span><span class="c1">;; =&gt; {:id 3 :name "Ursa Americanus Kermodei"}
+<pre class="highlight clojure"><code><span class="c1">;; UPDATE author SET name = 'Ursa Americanus Kermodei' WHERE (author.id = 3);
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">update</span><span class="w"> </span><span class="n">author!</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="p">}</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Ursa Americanus Kermodei"</span><span class="p">})</span><span class="w">
+</span><span class="mi">1</span><span class="w">
 </span></code></pre>
 
-<p>Update the record with a given id to have the provided new fields. Returns the
-updated record.</p>
+<p>Update records with <code class="prettyprint">update!</code>. Returns the number of updated records.</p>
 
 <h3 id="delete">Delete</h3>
-<pre class="highlight clojure"><code><span class="c1">;; DELETE FROM app_user WHERE id = 3;
-</span><span class="p">(</span><span class="nf">delete-app-user!</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="p">})</span><span class="w">
-</span><span class="c1">;; =&gt; 1 ;; returns the number of records deleted
+<pre class="highlight clojure"><code><span class="c1">;; DELETE FROM author WHERE id = 3;
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">delete</span><span class="w"> </span><span class="n">author!</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="p">})</span><span class="w">
+</span><span class="mi">1</span><span class="w">
 </span></code></pre>
 
 <p>Deletes all records matching the provided parameters. Returns the number of records
 deleted.</p>
-
-<h1 id="controllers">Controllers</h1>
-
-<p>Controllers are defined with <code class="prettyprint">titan.controller/defcontroller</code>.</p>
-
-<p>Let&rsquo;s say you have a schema named <code class="prettyprint">repo</code>:</p>
-<pre class="highlight clojure"><code><span class="p">(</span><span class="k">def</span><span class="w"> </span><span class="n">repo</span><span class="w">
-  </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="n">s/Int</span><span class="w">
-   </span><span class="no">:full_name</span><span class="w"> </span><span class="n">s/Str</span><span class="w">
-   </span><span class="no">:name</span><span class="w"> </span><span class="n">s/Str</span><span class="w">
-   </span><span class="no">:owner</span><span class="w"> </span><span class="n">owner</span><span class="w">
-   </span><span class="no">:private</span><span class="w"> </span><span class="n">s/Bool</span><span class="w">
-   </span><span class="no">:fork</span><span class="w"> </span><span class="n">s/Bool</span><span class="p">})</span><span class="w">
-</span></code></pre>
-
-<p>Now you can define a controller in which <code class="prettyprint">:params</code> must be coerced into the <code class="prettyprint">repo</code>
-schema as follows:</p>
-<pre class="highlight clojure"><code><span class="p">(</span><span class="nf">defcontroller</span><span class="w"> </span><span class="n">create!</span><span class="w">
-  </span><span class="s">"Follow a new repository."</span><span class="w">
-  </span><span class="p">{</span><span class="no">:params</span><span class="w"> </span><span class="n">repo</span><span class="p">}</span><span class="w">
-  </span><span class="p">[{</span><span class="no">:keys</span><span class="w"> </span><span class="p">[</span><span class="n">params</span><span class="w"> </span><span class="n">user</span><span class="p">]}]</span><span class="w">
-  </span><span class="p">(</span><span class="nf">behavior</span><span class="w"> </span><span class="n">...</span><span class="p">))</span><span class="w">
-</span></code></pre>
 
 <h1 id="about">About</h1>
 
