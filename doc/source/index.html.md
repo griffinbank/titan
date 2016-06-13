@@ -138,7 +138,7 @@ On OS X, you can get the current time with <code>date -u +"%Y%m%d%H%M%S"</code>
 /*20160601062426_initial.up.sql*/
 CREATE TABLE author (
   id       SERIAL  PRIMARY KEY,
-  username TEXT    NOT NULL,
+  name     TEXT    NOT NULL,
   password TEXT    NOT NULL
 );
 -- ;;
@@ -296,34 +296,6 @@ updated record.
 
 Deletes all records matching the provided parameters. Returns the number of records
 deleted.
-
-
-# Controllers
-
-Controllers are defined with `titan.controller/defcontroller`.
-
-Let's say you have a schema named `repo`:
-
-```clojure
-(def repo
-  {:id s/Int
-   :full_name s/Str
-   :name s/Str
-   :owner owner
-   :private s/Bool
-   :fork s/Bool})
-```
-
-Now you can define a controller in which `:params` must be coerced into the `repo`
-schema as follows:
-
-```clojure
-(defcontroller create!
-  "Follow a new repository."
-  {:params repo}
-  [{:keys [params user]}]
-  (behavior ...))
-```
 
 # About
 

@@ -1,54 +1,56 @@
 (ns titan.model-test
-  (:require [clojure.test :refer :all]
-            [korma.core :as korma]
-            [titan.test.fixtures :refer [use-db-fixtures]]
-            [titan.model :refer [defmodel]]))
+  (:require [titan.deprecated.model-test :as db]
+            [clojure.test :refer :all]
+            [titan.auth :as auth]
+            [titan.model :as model]
+            [titan.test.fixtures :refer [use-db-fixtures]]))
 
-;; Set up connection to db, etc.
-(use-db-fixtures {:no-transactions true})
+(use-db-fixtures)
 
-;; Define Korma entities
-(declare author blog post)
+;; TODO(@venantius): query modifiers
+(deftest having-works)
+(deftest group-works)
+(deftest from-works)
 
-(korma/defentity author)
-(korma/defentity blog)
-(korma/defentity post
-  (korma/belongs-to author)
-  (korma/belongs-to blog))
+;; TODO(@venantius): query types
+(deftest intersect-works)
 
-(defmodel author)
+;; Utility functions
 
-(deftest model-stuff-works
-  (is (= (fetch-one-author)
-         {:id 1
-          :name "Venantius"})))
+(def password "sample-pw")
+(def hashed-pw (auth/hashpw password))
 
-(deftest fetch-x-works
-  (is (= (fetch-author)
-         '({:id 1
-            :name "Venantius"}
-           {:id 2
-            :name "Test User"}))))
+(deftest create!-works
+  (is (= @(model/create!
+            db/author {:name "Sample" :password hashed-pw})
+         {:id 3 :name "Sample" :password hashed-pw})))
 
-(deftest create-x-works
-  (let [user (create-author! {:name "New user"})]
-    (is (= user
-           {:id 3 :name "New user"}))
-    (is (= (fetch-one-author {:name "New user"})
-           {:id 3 :name "New user"}))))
+(deftest fetch-works
+  (is (= @(model/fetch db/author {:name "Venantius"})
+         (list {:id 1
+                :name "Venantius"
+                :password "$2a$10$hjTKyciiHPHutU4YAL8TK.wG6LD8L7Z0H.7jQmsXCmMK/A0/8XqqO"}))))
 
-;; Verify that the above db insertion transaction was rolled back and not
-;; committed.
-(deftest tests-are-wrapped-in-transaction-blocks
-  (is (= (fetch-one-author {:name "New user"}) nil)))
+(deftest fetch-composes
+  (is (= @(-> (model/fetch db/author)
+              (model/where {:name "Venantius"}))
+         (list {:id 1
+                :name "Venantius"
+                :password "$2a$10$hjTKyciiHPHutU4YAL8TK.wG6LD8L7Z0H.7jQmsXCmMK/A0/8XqqO"}))))
 
-(deftest update-x-works
-  (let [user (update-author! 1 {:name "Bear"})]
-    (is (= user
-           {:id 1
-            :name "Bear"}))))
+(deftest variadic-composition-works
+  (is (= @(-> (model/fetch db/author)
+              (model/fields :name))
+         (list {:name "Venantius"} {:name "Test User"}))))
 
-(deftest delete-x-works
-  (delete-author! {:name "Venantius"})
-  (is (= (count (fetch-author))
-         1)))
+(deftest delete!-works
+  @(model/delete! db/author)
+  (is (= @(model/fetch db/author)
+         (list))))
+
+(deftest delete!-works-with-provided-parameters
+  @(model/delete! db/author {:name "Venantius"})
+  (is (= @(model/fetch db/author)
+         (list {:id 2
+                :name "Test User"
+                :password "$2a$10$xNi.5prsrvR/c6Tk0BvTa.KDZxeMaCc.OhZYGFvziNbmdcS21rzRe"}))))

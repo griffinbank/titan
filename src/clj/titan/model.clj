@@ -1,106 +1,131 @@
 (ns titan.model
-  (:require [clojure.tools.logging :as log]
+  "Next-generation model engine.
+
+  Immutable query constructor. Dereference to execute query."
+  (:refer-clojure :exclude [update])
+  (:require [clojure.tools.macro :as macro]
             [korma.core :as korma]))
 
-(defprotocol TitanQuery
-  (create! [this]))
+(defprotocol ITitanQuery
+  (dry-run [this]))
 
-(defrecord Query [this query]
+(defrecord TitanQuery [alias aliases db ent fields
+                       from group joins modifiers
+                       order results table type where]
   clojure.lang.IDeref
-  TitanQuery
-  (deref [this] (korma.core/exec query))
-  (create! [this] 5))
+  (deref [this] (korma/exec this)))
 
-(defn- create!
-  [entity]
-  (fn [params]
-    (korma/insert entity (korma/values params))))
+;; Declare local versions of all of these functions
 
-(defn- fetch
-  [entity]
-  (fn
-    ([]
-     (korma/select entity (korma/where {})))
-    ([params]
-     (korma/select entity (korma/where params)))))
+(defn- declare-body
+  [origin-fn args]
+  (let [filtered-args (filter #(not= '& %) args)]
+    `(~args (map->TitanQuery (~origin-fn ~@filtered-args)))))
 
-(defn- fetch-one
-  [entity]
-  (fn
-    ([]
-     (first (korma/select entity (korma/where {}))))
-    ([params]
-     (first (korma/select entity (korma/where params))))))
+(defn- declare-fn
+  [doc name orig-fn args]
+  (if doc
+    `(defn ~name ~doc ~@(map #(declare-body orig-fn %) args))
+    `(defn ~name ~@(map #(declare-body orig-fn %) args))))
 
-(defn- update!
-  [entity]
-  (fn [id params]
-    (korma/update entity (korma/where {:id id}) (korma/set-fields params))
-    (first (korma/select entity (korma/where {:id id})))))
+(defn strip-name-of-*
+  "Given a symbol, i.e. 'where*', strip it of the asterisk at the end."
+  [n]
+  (symbol
+   (let [n (str n)]
+     (if (.endsWith n "*")
+       (subs n 0 (dec (count n)))
+       n))))
 
-(defn- delete!
-  [entity]
-  (fn [params]
-    (korma/delete entity (korma/where params))))
+(defmacro declare-wrapped-fn
+  [f]
+  `(eval
+    (let [v# (var ~f)
+          m# (meta (var ~f))
+          n# (:name m#)
+          d# (:doc m#)
+          args# (:arglists m#)]
+      (#'declare-fn d# (strip-name-of-* n#) v# args#))))
 
-(defn- intern-*ns*
-  [name-str obj metadata]
-  (intern *ns* (with-meta (symbol name-str) metadata) obj))
+; Declare all of the various Korma things we might care about
 
-(defn- intern-delete!-fn
-  [{:keys [name] :as entity}]
-  (intern-*ns*
-   (str "delete-" name "!")
-   (delete! entity)
-   {:doc (format "Delete all %s records from the database matching params." name)
-    :arglists '([params])}))
+(declare-wrapped-fn korma.core/add-joins)
+(declare-wrapped-fn korma.core/empty-query)
+(declare-wrapped-fn korma.core/from)
+(declare-wrapped-fn korma.core/having)
+(declare-wrapped-fn korma.core/insert*)
+(declare-wrapped-fn korma.core/intersect*)
+;; (declare-wrapped-fn korma.core/join) ;; special case, bad metadata (TODO)
+(declare-wrapped-fn korma.core/limit)
+(declare-wrapped-fn korma.core/modifier)
+(declare-wrapped-fn korma.core/offset)
+(declare-wrapped-fn korma.core/order)
+(declare-wrapped-fn korma.core/post-query)
+(declare-wrapped-fn korma.core/queries)
+(declare-wrapped-fn korma.core/query-only)
+(declare-wrapped-fn korma.core/raw)
+(declare-wrapped-fn korma.core/select)
+(declare-wrapped-fn korma.core/select*)
+(declare-wrapped-fn korma.core/set-fields)
+(declare-wrapped-fn korma.core/sql-only)
+(declare-wrapped-fn korma.core/sqlfn)
+(declare-wrapped-fn korma.core/sqlfn*)
+(declare-wrapped-fn korma.core/subselect)
+(declare-wrapped-fn korma.core/union*)
+(declare-wrapped-fn korma.core/union-all)
+(declare-wrapped-fn korma.core/update*)
+(declare-wrapped-fn korma.core/values)
+(declare-wrapped-fn korma.core/where)
+(declare-wrapped-fn korma.core/with)
 
-(defn- intern-update!-fn
-  [{:keys [name] :as entity}]
-  (intern-*ns*
-   (str "update-" name "!")
-   (update! entity)
-   {:doc (format "Update one %s record from the database with the provided id to the given params." name)
-    :arglists '([id params])}))
+;; Variadic functions that I couldn't deal with as easily above.
 
-(defn- intern-fetch-one-fn
-  [{:keys [name] :as entity}]
-  (intern-*ns*
-   (str "fetch-one-" name)
-   (fetch-one entity)
-   {:doc (format "Fetch one %s record from the database matching the given params." name)
-    :arglists '([params])}))
+(defn
+  ^{:doc (:doc (meta #'korma.core/fields))}
+  fields
+  [query & vs]
+  (map->TitanQuery (apply korma.core/fields (conj vs query))))
 
-(defn- intern-fetch-fn
-  [{:keys [name] :as entity}]
-  (intern-*ns*
-   (str "fetch-" name)
-   (fetch entity)
-   {:doc (format "Fetch all %s records from the database matching the given params." name)
-    :arglists '([params])}))
+(defn
+  ^{:doc (:doc (meta #'korma.core/group))}
+  group
+  [query & fields]
+  (map->TitanQuery (apply korma.core/group (conj fields query))))
 
-(defn- intern-create!-fn
-  [{:keys [name] :as entity}]
-  (intern-*ns*
-   (str "create-" name "!")
-   (create! entity)
-   {:doc (format "Insert a new %s record into the database." name)
-    :arglists '([params])}))
+;; I don't know if this formulation actually works.
 
-(defn- intern-fns
-  [{:keys [name] :as entity}]
-  (intern-create!-fn entity)
-  (intern-fetch-fn entity)
-  (intern-fetch-one-fn entity)
-  (intern-update!-fn entity)
-  (intern-delete!-fn entity))
+(defmacro
+  ^{:doc (:doc (meta #'korma.core/with))}
+  with
+  [query ent & body]
+  (map->TitanQuery `(korma.core/with ~@(conj body ent query))))
 
-(defmacro defmodel
-  "Define basic database methods for the target entity:
-    * create-X!
-    * fetch-X
-    * fetch-one-X
-    * update-X!
-    * delete-X!"
-  [entity]
-  `(#'intern-fns ~entity))
+(defmacro
+  ^{:doc (:doc (meta #'korma.core/with-batch))}
+  with-batch
+  [query ent & body]
+  (map->TitanQuery `(korma.core/with-batch ~@(conj body ent query))))
+
+;; Utility queries
+
+(defn create!
+  [entity vs]
+  (let [query (-> (korma/insert* entity)
+                  (korma/values vs))]
+    (map->TitanQuery query)))
+
+(defn fetch
+  ([entity]
+   (map->TitanQuery (korma/select* entity)))
+  ([entity conditions]
+   (let [query (-> (korma/select* entity)
+                   (korma/where conditions))]
+     (map->TitanQuery (korma/select* query)))))
+
+(defn delete!
+  ([entity]
+   (map->TitanQuery (korma/delete* entity)))
+  ([entity conditions]
+   (let [query (-> (korma/delete* entity)
+                   (korma/where conditions))]
+     (map->TitanQuery query))))

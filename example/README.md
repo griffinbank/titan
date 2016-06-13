@@ -1,8 +1,10 @@
 # Example
 
+**THIS EXAMPLE IS INCOMPLETE AND IS UNDERGOING CHANGE**
+
 An example Titan application
 
-## Configuration
+## Initial Setup & Server Initialization
 
 First, create your Postgres database:
 
@@ -10,17 +12,13 @@ First, create your Postgres database:
 createdb example
 ```
 
-## Usage
-
-### Command Line Migrations & Server Initialization
-
-Next, run a migration:
+Next, run the migrations:
 
 ```
 lein run -m titan.db.migrations/migrate
 ```
 
-You can now run the application:
+Finally, we can boot the application:
 
 ```
 lein run
@@ -60,5 +58,4 @@ Tests can then be run with `lein test`
 
 Copyright © 2016 W. David Jarvis
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Eclipse Public License version 1.0.

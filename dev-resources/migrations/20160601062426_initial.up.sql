@@ -1,7 +1,7 @@
 --generate the filename with `date -u +"%Y%m%d%H%M%S"`
 CREATE TABLE author (
   id       SERIAL  PRIMARY KEY,
-  username TEXT    NOT NULL,
+  name     TEXT    NOT NULL,
   password TEXT    NOT NULL
 );
 -- ;;

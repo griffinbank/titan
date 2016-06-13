@@ -29,6 +29,7 @@
 
   :aot [titan.commands.db.migrate]
   :source-paths ["src/clj"]
+  :java-source-paths ["src/java"]
   :test-paths ["test/clj"]
   :min-lein-version "2.5.0"
 
