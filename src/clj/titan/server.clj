@@ -12,13 +12,13 @@
 (defn -start-web-server!
   "Start the Titan web server."
   []
-  (let [host (or (env/env :host) "127.0.0.1")
-        port (or (env/env :port) 5000)]
+  (let [host (or (env/env :titan_host) "127.0.0.1")
+        port (or (env/env :titan_port) 5000)]
     (if (nil? @server)
       (do
         (log/infof "Starting Titan server on %s:%s..." host port)
-        (reset! server (web/run @app/app {:host host
-                                          :port port})))
+        (reset! server (web/run @app/app {:titan_host host
+                                          :titan_port port})))
       (log/error "The Titan server is already running. To restart the server,"
                  "use `titan.server/restart`"))))
 
@@ -26,7 +26,7 @@
   "Start the Titan server."
   []
   (db/set-korma-db!)
-  #_(nrepl/start-server)
+  #_(nrepl/start-server) ; deal with this later
   (-start-web-server!))
 
 (defn stop-server!
