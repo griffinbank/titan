@@ -11,16 +11,19 @@
 
 (defn -start-web-server!
   "Start the Titan web server."
-  []
-  (let [host (or (env/env :titan_host) "127.0.0.1")
-        port (or (env/env :titan_port) 5000)]
-    (if (nil? @server)
-      (do
-        (log/infof "Starting Titan server on %s:%s..." host port)
-        (reset! server (web/run @app/app {:titan_host host
-                                          :titan_port port})))
-      (log/error "The Titan server is already running. To restart the server,"
-                 "use `titan.server/restart`"))))
+  ([] (-start-web-server! {}))
+  ([{:keys [host path port]
+     :or {host (or (env/env :titan_host) "127.0.0.1")
+          path (or (env/env :titan_path) "/")
+          port (or (env/env :titan_port) 8080)}}]
+   (if (nil? @server)
+     (do
+       (log/infof "Starting Titan server on %s:%s..." host port)
+       (reset! server (web/run @app/app {:host host
+                                         :path path
+                                         :port port})))
+     (log/error "The Titan server is already running. To restart the server,"
+                "use `titan.server/restart`"))))
 
 (defn start-server!
   "Start the Titan server."
