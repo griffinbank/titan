@@ -17,7 +17,7 @@
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.2.0"]
                  [ring/ring-json "0.4.0"]
-                 [prismatic/schema "1.1.0"]
+                 [prismatic/schema "1.1.2"]
                  [environ "1.0.2"]
                  [clj-time "0.11.0"]
 
