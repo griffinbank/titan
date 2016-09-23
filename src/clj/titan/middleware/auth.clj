@@ -1,6 +1,5 @@
 (ns titan.middleware.auth
   (:require [cemerick.url :refer [map->query url url-encode]]
-            [clojure.tools.logging :as log]
             [clout.core :as clout]
             [ring.util.request :as req]
             [titan.http.response :as responses]))

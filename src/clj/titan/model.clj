@@ -3,8 +3,7 @@
 
   Immutable query constructor. Dereference to execute query."
   (:refer-clojure :exclude [update])
-  (:require [clojure.tools.macro :as macro]
-            [korma.core :as korma]))
+  (:require [korma.core :as korma]))
 
 (defprotocol ITitanQuery
   (dry-run [this]))
@@ -145,7 +144,7 @@
 (defn update!
   "Create an UPDATE TitanQuery. The conditions argument specifies the WHERE clause
   and the values argument specifies the fields and values to be set.
-  
+
   Returns the number of records updated."
   ([entity conditions values]
    (let [query (-> (korma/update* entity)

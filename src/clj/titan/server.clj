@@ -4,10 +4,15 @@
             [environ.core :as env]
             [ring.middleware.reload :refer [wrap-reload]]
             [titan.app :as app]
-            [titan.db :as db]
-            [titan.server.nrepl :as nrepl]))
+            [titan.db :as db]))
 
 (defonce server (atom nil))
+
+;; TODO: This is for development, to allow hot-reloading of code.
+;; In production, we should just directly target @app/app
+(defn handler
+  [req]
+  (@app/app req))
 
 (defn -start-web-server!
   "Start the Titan web server."
@@ -19,17 +24,17 @@
    (if (nil? @server)
      (do
        (log/infof "Starting Titan server on %s:%s..." host port)
-       (reset! server (web/run @app/app {:host host
-                                         :path path
-                                         :port port})))
+       (reset! server (web/run handler {:host host
+                                        :path path
+                                        :port port})))
      (log/error "The Titan server is already running. To restart the server,"
                 "use `titan.server/restart`"))))
 
 (defn start-server!
   "Start the Titan server."
   []
-  (db/set-korma-db!)
-  #_(nrepl/start-server) ; deal with this later
+  (when (env/env :database-url)
+    (db/set-korma-db!))
   (-start-web-server!))
 
 (defn stop-server!
