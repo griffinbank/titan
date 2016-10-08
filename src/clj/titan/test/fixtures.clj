@@ -8,6 +8,17 @@
             [titan.db :as db]
             [titan.db.migrations :as migrations]))
 
+(def initialized? (atom false))
+
+(defn maybe-reapply-migrations!
+  "If this is the first namespace we're loading that uses db fixtures, let's
+  first make sure we've got the latest migrations by rolling everything back
+  and re-migrating."
+  []
+  (when-not @initialized?
+    (migrations/reapply-all {:reporter migrations/silent-reporter})
+    (reset! initialized? true)))
+
 (defn- transactional-db-fixtures
   "Run the test inside of a transaction."
   [test-fn]
@@ -19,6 +30,7 @@
   "Initializes the DB connection pool and runs any necessary migrations."
   [test-ns]
   (db/set-korma-db!)
+  (maybe-reapply-migrations!)
   (migrations/migrate {:reporter migrations/silent-reporter})
   (test-ns))
 

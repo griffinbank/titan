@@ -6,12 +6,12 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
-                 [org.immutant/web "2.1.4"
+                 [org.immutant/web "2.1.5"
                   :exclusions [[ch.qos.logback/logback-classic]
                                [ch.qos.logback/logback-core]]]
                  [korma "0.4.3"]
                  [ragtime "0.6.0"]
-                 [ring "1.4.0"]
+                 [ring "1.5.0"]
                  [ring/ring-defaults "0.2.0"]
                  [ring/ring-json "0.4.0"]
                  [prismatic/schema "1.1.2"]
