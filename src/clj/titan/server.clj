@@ -48,7 +48,7 @@
       (reset! server nil))
     (log/error "Titan server is not currently running!")))
 
-(defn restart-server
+(defn restart-server!
   "Restart the Titan server."
   []
   (stop-server!)
