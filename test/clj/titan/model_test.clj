@@ -7,7 +7,8 @@
 
 (declare author blog post)
 
-(korma/defentity author)
+(korma/defentity author
+  (korma/has-many post))
 (korma/defentity blog)
 (korma/defentity post
   (korma/belongs-to author)
@@ -72,3 +73,14 @@
          (list {:id 2
                 :name "Test User"
                 :password "$2a$10$xNi.5prsrvR/c6Tk0BvTa.KDZxeMaCc.OhZYGFvziNbmdcS21rzRe"}))))
+
+(deftest with-works
+  (is (= @(-> (model/fetch author {:name "Venantius"})
+              (model/with post))
+         (list {:id 1
+                :name "Venantius"
+                :password "$2a$10$hjTKyciiHPHutU4YAL8TK.wG6LD8L7Z0H.7jQmsXCmMK/A0/8XqqO"
+                :post (list {:id 1
+                             :author_id 1
+                             :blog_id 1
+                             :content "I'm a sample blog post!"})}))))

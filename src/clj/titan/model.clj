@@ -94,19 +94,17 @@
   [query & fields]
   (map->TitanQuery (apply korma.core/group (conj fields query))))
 
-;; I don't know if this formulation actually works.
-
 (defmacro
   ^{:doc (:doc (meta #'korma.core/with))}
   with
   [query ent & body]
-  (map->TitanQuery `(korma.core/with ~@(conj body ent query))))
+  `(map->TitanQuery (korma.core/with ~query ~ent ~@body)))
 
 (defmacro
   ^{:doc (:doc (meta #'korma.core/with-batch))}
   with-batch
   [query ent & body]
-  (map->TitanQuery `(korma.core/with-batch ~@(conj body ent query))))
+  `(map->TitanQuery (korma.core/with-batch ~query ~ent ~@body)))
 
 ;; Utility queries
 
