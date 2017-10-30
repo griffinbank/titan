@@ -34,6 +34,6 @@ list](https://groups.google.com/forum/#!forum/titan-developers).
 
 ## License
 
-Copyright © 2016 W. David Jarvis
+Copyright © 2017 W. David Jarvis
 
 Distributed under the Eclipse Public License version 1.0

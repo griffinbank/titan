@@ -98,7 +98,7 @@
   ^{:doc (:doc (meta #'korma.core/with))}
   with
   [query ent & body]
-  `(map->TitanQuery (korma.core/with ~query ~ent ~@body)))
+  `(map->TitanQuery (korma.core/with* ~query ~ent (fn [q#] (-> q# ~@body)))))
 
 (defmacro
   ^{:doc (:doc (meta #'korma.core/with-batch))}

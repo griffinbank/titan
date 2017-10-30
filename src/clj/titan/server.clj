@@ -18,9 +18,9 @@
   "Start the Titan web server."
   ([] (-start-web-server! {}))
   ([{:keys [host path port]
-     :or {host (or (env/env :titan_host) "127.0.0.1")
-          path (or (env/env :titan_path) "/")
-          port (or (env/env :titan_port) 8080)}}]
+     :or {host (or (env/env :titan-host) "127.0.0.1")
+          path (or (env/env :titan-path) "/")
+          port (or (env/env :titan-port) 8080)}}]
    (if (nil? @server)
      (do
        (log/infof "Starting Titan server on %s:%s..." host port)
@@ -32,10 +32,12 @@
 
 (defn start-server!
   "Start the Titan server."
-  []
-  (when (env/env :database-url)
-    (db/set-korma-db!))
-  (-start-web-server!))
+  ([]
+   (start-server! {}))
+  ([opts]
+   (when (env/env :database-url)
+     (db/set-korma-db!))
+   (-start-web-server! opts)))
 
 (defn stop-server!
   "Stop the Titan server."
