@@ -1,2 +1,0 @@
-TODOS:
-When database connection is unspecified, throw something more helpful than a NPE
