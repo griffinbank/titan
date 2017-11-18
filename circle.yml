@@ -5,6 +5,6 @@ machine:
 test:
   pre:
     - createdb titan_test
-    - lein with-profile +test migrate
+    - cd titan && lein with-profile +test migrate
   override:
-    - lein test
+    - cd titan && lein test
