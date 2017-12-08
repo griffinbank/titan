@@ -13,10 +13,10 @@ develop quickly and with delight.
 ## Getting Started
 
 If you're getting started from scratch, you can quickly create a new Titan
-project by using the Titan Leiningen template (NOT CURRENTLY SUPPORTED)
+project by using the Titan Leiningen template
 
 ```
-lein new titan-app APPNAME
+lein new titan-app YOUR_APP_NAME
 ```
 
 If you're looking to configure an existing application with Titan, we recommend
