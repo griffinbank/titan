@@ -26,10 +26,14 @@
             "rollback" ["run" "-m" "titan.db.migrations/rollback"]
             "rollback-all" ["run" "-m" "titan.db.migrations/rollback-all"]}
 
-  :dev {:dependencies [[ring/ring-mock "0.3.0"]]}
+  :dev {
+    :dependencies [[ring/ring-mock "0.3.0"]]
+    :env {:database-url "postgres://localhost:5432/{{name}}"}
+    :repl-options {
+      :prompt (fn [ns] (str "[" \u001b \[ 33 \m ns \u001b \[ 0 \m "]"
+                            "(" \u001b \[ 36 \m "λ" \u001b \[ 0 \m ")=> "))
+    }
+  }
 
-  :env {:database-url "postgres://localhost:5432/{{name}}"}
-
-  :repl-options {:prompt (fn [ns] (str "[" \u001b \[ 33 \m ns \u001b \[ 0 \m "]"
-                                       "(" \u001b \[ 36 \m "λ" \u001b \[ 0 \m ")=> "))}
+  :main {{name}}.core
 )
