@@ -12,8 +12,8 @@
             [titan.server :as server]))
 
 (defroutes app-routes
-  (GET "/demo" {:status 200
-                :body {:message "ok!"}})
+  (GET "/demo" [] {:status 200
+                   :body {:message "ok!"}})
 
   (route/not-found {:status 404
                     :body {:error "boop"}}))
