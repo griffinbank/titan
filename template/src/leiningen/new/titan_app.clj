@@ -22,6 +22,7 @@
               (render "resources/migrations/00000000000000-example.up.sql" data)]
              ["project.clj" (render "project.clj" data)]
              ["src/log4j.properties" (render "log4j.properties" data)]
+             ["README.md" (render "README.md" data)]
              "resources"
              "test/{{sanitized}}"
              )))

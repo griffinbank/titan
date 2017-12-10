@@ -1,4 +1,5 @@
 /target
+/titan/target
 /classes
 /checkouts
 .sass-cache
@@ -6,7 +7,7 @@ pom.xml
 pom.xml.asc
 *.jar
 *.class
-/.lein-*
+.lein-*
 /.nrepl-port
 .hgignore
 .hg/
