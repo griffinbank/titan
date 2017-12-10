@@ -29,10 +29,7 @@ from scratch or modifying an existing application.
 
 ### Beginning From Scratch
 
-<aside class="warning">This feature is not yet complete.</aside>
-
-To create a new application using the Titan Leiningen template, just run `lein new titan-app $your_app_name`. This will create a version of the example blog application that uses
-the provided application name instead of `example`.
+To create a new application using the Titan Leiningen template, just run `lein new titan-app $your_app_name`. This will create an application skeleton for you - at the moment it doesn't provide much other than a `core` namespace with basic routing and HTTP infrastructure, but future versions will include models and controllers for a sample blog application.
 
 ### Adding Titan to an Existing App
 
@@ -42,7 +39,7 @@ obvious reasons involves a few more steps than starting from a clean slate.
 #### Configure your `project.clj`
 
 ```clojure
-:dependencies [[titan "0.0.1-alpha1"]
+:dependencies [[titan "0.1.0"]
                ; ...
 ```
 
@@ -58,7 +55,7 @@ include the appropriate JDBC driver in your dependencies. The example code
 includes a fairly recent version of the PostgreSQL JDBC driver.
 
 ```clojure
-               [compojure "1.5.0"]
+               [compojure "1.6.0"]
                ;; etc...
                ]
 ```

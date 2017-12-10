@@ -16,8 +16,7 @@
                  [environ "1.1.0"]
                  [com.cemerick/url "0.1.1"]
 
-                 [venantius/titan "0.0.1-alpha4"]
-                 ] ;; TODO: move to dev?
+                 [venantius/titan "0.1.0"]]
 
   :plugins [[lein-environ "1.1.0"]]
 

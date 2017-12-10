@@ -1,4 +1,4 @@
-(defproject titan-app/lein-template "0.0.1alpha4"
+(defproject titan-app/lein-template "0.1.0"
   :description "A Leiningen template for a Titan web application."
   :url "http://github.com/venantius/titan"
   :license {:name "Eclipse Public License"
