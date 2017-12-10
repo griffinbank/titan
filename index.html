@@ -143,10 +143,7 @@ from scratch or modifying an existing application.</p>
 
 <h3 id="beginning-from-scratch">Beginning From Scratch</h3>
 
-<aside class="warning">This feature is not yet complete.</aside>
-
-<p>To create a new application using the Titan Leiningen template, just run <code class="prettyprint">lein new titan-app $your_app_name</code>. This will create a version of the example blog application that uses
-the provided application name instead of <code class="prettyprint">example</code>.</p>
+<p>To create a new application using the Titan Leiningen template, just run <code class="prettyprint">lein new titan-app $your_app_name</code>. This will create an application skeleton for you - at the moment it doesn&rsquo;t provide much other than a <code class="prettyprint">core</code> namespace with basic routing and HTTP infrastructure, but future versions will include models and controllers for a sample blog application.</p>
 
 <h3 id="adding-titan-to-an-existing-app">Adding Titan to an Existing App</h3>
 
@@ -154,7 +151,7 @@ the provided application name instead of <code class="prettyprint">example</code
 obvious reasons involves a few more steps than starting from a clean slate.</p>
 
 <h4 id="configure-your-project-clj">Configure your <code class="prettyprint">project.clj</code></h4>
-<pre class="highlight clojure"><code><span class="no">:dependencies</span><span class="w"> </span><span class="p">[[</span><span class="n">titan</span><span class="w"> </span><span class="s">"0.0.1-alpha1"</span><span class="p">]</span><span class="w">
+<pre class="highlight clojure"><code><span class="no">:dependencies</span><span class="w"> </span><span class="p">[[</span><span class="n">titan</span><span class="w"> </span><span class="s">"0.1.0"</span><span class="p">]</span><span class="w">
                </span><span class="c1">; ...
 </span></code></pre>
 
@@ -166,7 +163,7 @@ obvious reasons involves a few more steps than starting from a clean slate.</p>
 <p>If you&rsquo;re currently using a SQL database for your application, make sure to
 include the appropriate JDBC driver in your dependencies. The example code
 includes a fairly recent version of the PostgreSQL JDBC driver.</p>
-<pre class="highlight clojure"><code><span class="w">               </span><span class="p">[</span><span class="n">compojure</span><span class="w"> </span><span class="s">"1.5.0"</span><span class="p">]</span><span class="w">
+<pre class="highlight clojure"><code><span class="w">               </span><span class="p">[</span><span class="n">compojure</span><span class="w"> </span><span class="s">"1.6.0"</span><span class="p">]</span><span class="w">
                </span><span class="c1">;; etc...
 </span><span class="w">               </span><span class="p">]</span><span class="w">
 </span></code></pre>
@@ -346,6 +343,9 @@ for runtime query generation and execution. This DSL represents an explicit
 subset of Korma&rsquo;s functionality with a specific focus on composable functions
 and delayed execution.</p>
 
+<p>The idea here is that you can modify a query as many times as you want in whatever
+function composition model you prefer. Then, when you need the data, you can dereference it to execute the query.</p>
+
 <aside class="notice">
 Per-model logic should be stored in individual namespaces. By convention,
 individual models should be declared in <code>$yourapp.model.$modelname</code>
@@ -400,7 +400,7 @@ record.</p>
 
 <h3 id="update">Update</h3>
 <pre class="highlight clojure"><code><span class="c1">;; UPDATE author SET name = 'Ursa Americanus Kermodei' WHERE (author.id = 3);
-</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">update</span><span class="w"> </span><span class="n">author!</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="p">}</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Ursa Americanus Kermodei"</span><span class="p">})</span><span class="w">
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="err">@</span><span class="p">(</span><span class="nf">m/update!</span><span class="w"> </span><span class="n">author</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="p">}</span><span class="w"> </span><span class="p">{</span><span class="no">:name</span><span class="w"> </span><span class="s">"Ursa Americanus Kermodei"</span><span class="p">})</span><span class="w">
 </span><span class="mi">1</span><span class="w">
 </span></code></pre>
 
@@ -408,7 +408,7 @@ record.</p>
 
 <h3 id="delete">Delete</h3>
 <pre class="highlight clojure"><code><span class="c1">;; DELETE FROM author WHERE id = 3;
-</span><span class="n">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">delete</span><span class="w"> </span><span class="n">author!</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="p">})</span><span class="w">
+</span><span class="n">=&gt;</span><span class="w"> </span><span class="err">@</span><span class="p">(</span><span class="nf">m/delete!</span><span class="w"> </span><span class="n">author</span><span class="w"> </span><span class="p">{</span><span class="no">:id</span><span class="w"> </span><span class="mi">3</span><span class="p">})</span><span class="w">
 </span><span class="mi">1</span><span class="w">
 </span></code></pre>
 
