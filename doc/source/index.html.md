@@ -253,6 +253,9 @@ for runtime query generation and execution. This DSL represents an explicit
 subset of Korma's functionality with a specific focus on composable functions
 and delayed execution.
 
+The idea here is that you can modify a query as many times as you want in whatever
+function composition model you prefer. Then, when you need the data, you can dereference it to execute the query.
+
 <aside class="notice">
 Per-model logic should be stored in individual namespaces. By convention,
 individual models should be declared in <code>$yourapp.model.$modelname</code>
@@ -315,7 +318,7 @@ record.
 
 ```clojure
 ;; UPDATE author SET name = 'Ursa Americanus Kermodei' WHERE (author.id = 3);
-=> (update author! {:id 3} {:name "Ursa Americanus Kermodei"})
+=> @(m/update! author {:id 3} {:name "Ursa Americanus Kermodei"})
 1
 ```
 
@@ -325,7 +328,7 @@ Update records with `update!`. Returns the number of updated records.
 
 ```clojure
 ;; DELETE FROM author WHERE id = 3;
-=> (delete author! {:id 3})
+=> @(m/delete! author {:id 3})
 1
 ```
 
