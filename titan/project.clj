@@ -1,4 +1,4 @@
-(defproject venantius/titan "0.1.0"
+(defproject venantius/titan "0.1.1-SNAPSHOT"
   :description "An extensible web application framework for Clojure."
   :url "https://github.com/venantius/titan"
   :license {:name "Eclipse Public License"
@@ -10,7 +10,7 @@
                   :exclusions [[ch.qos.logback/logback-classic]
                                [ch.qos.logback/logback-core]]]
                  [korma "0.4.3"]
-                 [ragtime "0.6.0"]
+                 [ragtime "0.7.2"]
                  [ring "1.5.0"]
                  [ring/ring-defaults "0.2.0"]
                  [ring/ring-json "0.4.0"]
