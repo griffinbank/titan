@@ -1,4 +1,4 @@
-(defproject venantius/titan "0.1.1-SNAPSHOT"
+(defproject venantius/titan "0.1.2"
   :description "An extensible web application framework for Clojure."
   :url "https://github.com/venantius/titan"
   :license {:name "Eclipse Public License"
