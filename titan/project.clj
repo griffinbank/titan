@@ -1,9 +1,9 @@
-(defproject venantius/titan "0.1.2"
+(defproject venantius/titan "0.1.3"
   :description "An extensible web application framework for Clojure."
   :url "https://github.com/venantius/titan"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.7.0"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
                  [org.immutant/web "2.1.5"
@@ -15,7 +15,6 @@
                  [ring/ring-defaults "0.2.0"]
                  [ring/ring-json "0.4.0"]
                  [prismatic/schema "1.1.2"]
-                 [metosin/ring-http-response "0.8.0"]
                  [environ "1.0.2"]
                  [clj-time "0.11.0"]
                  ]
