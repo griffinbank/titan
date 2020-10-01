@@ -4,8 +4,9 @@ Titan is a simple and extensible framework for building Clojure web applications
 Whether you're new to Clojure or an experienced Clojurist, Titan can help you
 develop quickly and with delight.
 
-You might be thinking what is Clojure?
-*Clojure is a modern, dynamic, and functional dialect of the Lisp programming language on the Java platform.
+You might be thinking what is Clojure? 
+
+Clojure is a modern, dynamic, and functional dialect of the Lisp programming language on the Java platform.
 Clojure advocates immutability and immutable data structures and encourages programmers to be explicit about managing identity and its states.
 Clojure made #6 for the Most Loved Language and made #1 for top paying Globally, and #2 for top paying in the US. Clojure is based on the Java Virtual Machine (JVM). If you are part of tribe JVM, then is worth considering as an alternative to Scala or Java.
 
